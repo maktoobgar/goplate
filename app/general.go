@@ -12,7 +12,7 @@ func runCronJobs() {
 	// "* * * * *" Means every minute. Reference:
 	// https://crontab.guru/every-minute
 	//
-	// Just implemented for test purposes
+	// Just implemented for test purposes but useful
 	// g.Cron.AddJob("* * * * *", extra_middlewares.IpRateLimitGarbageCollector)
 }
 

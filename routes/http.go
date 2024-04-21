@@ -32,10 +32,6 @@ func addBasicMiddlewares(app *iris.Application) {
 	// Panic
 	app.Use(extra_middlewares.Panic)
 
-	// * IP rate limiter
-	// * Not practical in this project, so comment
-	// app.Use(extra_middlewares.IpRateLimit)
-
 	// Creates a db for every db operation
 	app.Use(extra_middlewares.CreateDbInstance)
 }
