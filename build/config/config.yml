@@ -1,0 +1,45 @@
+logging:
+  path: "/var/log/project"
+  pattern: "%Y-%m-%d"
+  max_age: "720h" # One month
+  rotation_time: "24h"
+  rotation_size: "20MB"
+
+ip: 127.0.0.1
+port: 6969
+databases:
+  test:
+    type: "sqlite3"
+    db_name: "test.db"
+    # main:
+    #   type: "postgres"
+    #   username: "postgres"
+    #   password: "M123456789H"
+    #   db_name: "project_db"
+    #   host: "127.0.0.1"
+    #   port: 5432
+    #   ssl_mode: "disable"
+    #   time_zone: "Asia/Tehran"
+    #   charset: "utf8mb4"
+
+debug: true
+domain: ""
+# cors - allow_origins: "example.com, example.org"
+allow_origins: "*"
+# cors - allow_headers: "Token, Another"
+allow_headers: "Authorization,Content-Type"
+# cors - 3600 seconds (one hour)
+max_age: 3600
+# Timeout in seconds
+timeout: 10
+# Count of clones to run on the same address:port
+clones_count: -1
+# At most 200 requests gets handled in server and
+# others wait for one of them to go out
+max_concurrent_requests: 200
+secret_key: "updated_you_honey"
+media: "./media"
+# Based on Days
+access_token_life_period: 15
+# Based on Months
+refresh_token_life_period: 3

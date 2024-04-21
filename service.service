@@ -1,0 +1,14 @@
+[Unit]
+Description=DESC
+After=network.target
+
+[Service]
+User=root
+Type=simple
+WorkingDirectory=DIR
+ExecStart=EXECDIR
+Restart=always
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target
