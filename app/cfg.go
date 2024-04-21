@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 
 	"github.com/robfig/cron/v3"
 	migrate "github.com/rubenv/sql-migrate"
@@ -56,10 +55,6 @@ func initializeConfigs() {
 		} else if err2 != nil {
 			log.Fatalln(err2)
 		}
-	}
-
-	if cfg.ClonesCount < 0 {
-		cfg.ClonesCount = runtime.GOMAXPROCS(0)
 	}
 
 	g.SecretKeyBytes = []byte(cfg.SecretKey)

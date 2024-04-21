@@ -5,26 +5,24 @@ import (
 	"fmt"
 	"os"
 	"service/app"
+	g "service/global"
 )
 
 func main() {
-	oldUsage := flag.Usage
 	flag.Usage = func() {
-		oldUsage()
-		fmt.Println()
-		fmt.Println("Commands:")
-		// fmt.Println("  command\n        description")
+		fmt.Println("Usage of " + g.Name + ":")
+		fmt.Println("\nCommands:")
+		fmt.Println("  command  description")
 	}
 
 	if len(os.Args) < 2 {
 		app.API()
-		return
+		os.Exit(0)
 	} else {
 		switch os.Args[1] {
 		default:
-			fmt.Printf("expected 'fake' but '%s' received\n", os.Args[1])
 			flag.Usage()
-			fmt.Println()
+			os.Exit(1)
 		}
 	}
 }

@@ -32,8 +32,6 @@ allow_headers: "Authorization,Content-Type"
 max_age: 3600
 # Timeout in seconds
 timeout: 10
-# Count of clones to run on the same address:port
-clones_count: -1
 # At most 200 requests gets handled in server and
 # others wait for one of them to go out
 max_concurrent_requests: 200

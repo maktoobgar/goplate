@@ -20,14 +20,6 @@ func info() {
 	fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sSystem Info%s==%s\n", colors.Yellow, colors.Cyan, colors.Reset))
 	fmt.Printf("Name:\t\t\t%s%s%s\n", colors.Blue, g.Name, colors.Reset)
 	fmt.Printf("Version:\t\t%s%s%s\n", colors.Blue, g.Version, colors.Reset)
-	// if g.CFG.ClonesCount != 0 {
-	// 	corsCapacity := runtime.GOMAXPROCS(0)
-	// 	cloneColor := colors.Green
-	// 	if g.CFG.ClonesCount > corsCapacity {
-	// 		cloneColor = colors.Red
-	// 	}
-	// 	fmt.Printf("Clones:\t\t\t%s%d%s (%d cors)\n", cloneColor, g.CFG.ClonesCount, colors.Reset, corsCapacity)
-	// }
 	mainOrTest := "test"
 	mainOrTestColor := colors.Red + mainOrTest + colors.Reset
 	if !g.CFG.Debug {
