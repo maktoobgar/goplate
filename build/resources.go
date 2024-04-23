@@ -1,9 +1,6 @@
 package build
 
-import "embed"
-
-//go:embed translations
-var Translations embed.FS
+import _ "embed"
 
 //go:embed config/config.yml
 var Config []byte

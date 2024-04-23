@@ -2,6 +2,7 @@ package extra_middlewares
 
 import (
 	g "service/global"
+	"service/pkg/translator"
 
 	"github.com/kataras/iris/v12"
 )
@@ -12,6 +13,8 @@ func Translator(ctx iris.Context) {
 		lang = ctx.GetCookie("Accept-Language")
 	}
 
-	ctx.Values().Set(g.TranslateKey, g.Translator.TranslateFunction(lang, "en"))
+	// TODO: Fix
+	var translateFunc translator.TranslatorFunc = func(value string) string { return value }
+	ctx.Values().Set(g.TranslateKey, translateFunc)
 	ctx.Next()
 }

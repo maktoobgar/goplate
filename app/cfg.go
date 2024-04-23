@@ -1,10 +1,10 @@
 package app
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/robfig/cron/v3"
@@ -19,7 +19,6 @@ import (
 	db "service/pkg/database"
 	"service/pkg/logging"
 	media_manager "service/pkg/media"
-	"service/pkg/translator"
 )
 
 var (
@@ -57,28 +56,9 @@ func initializeConfigs() {
 		}
 	}
 
+	cfg.Language.Path = path.Join(cfg.PWD, cfg.Language.Path)
 	g.SecretKeyBytes = []byte(cfg.SecretKey)
-
-	mainOrTest := "test"
-	if !cfg.Debug {
-		mainOrTest = "main"
-	}
-	for name, database := range cfg.Gateway.Databases {
-		if name == mainOrTest {
-			g.MainDatabaseType = database.Type
-			break
-		}
-	}
 	g.CFG = cfg
-}
-
-// Translator initialization
-func initialTranslator() {
-	t, err := translator.New(build.Translations, languages[0], languages[1:]...)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	g.Translator = t
 }
 
 // Logger initialization
@@ -96,22 +76,9 @@ func initialLogger() {
 // Run dbs
 func initialDBs() {
 	var err error
-	g.AllSQLCons, g.DB, err = db.New(cfg.Gateway.Databases, cfg.Debug)
+	g.DB, err = db.New(cfg.Gateway.Database, cfg.Debug)
 	if err != nil {
 		log.Fatalln(err)
-	}
-
-	var ok bool = false
-	if !g.CFG.Debug {
-		_, ok = g.AllSQLCons["main"]
-		if !ok {
-			log.Fatalln(errors.New("'main' db is not defined (required)"))
-		}
-	} else {
-		_, ok = g.AllSQLCons["test"]
-		if !ok {
-			log.Fatalln(errors.New("'test' db is not defined"))
-		}
 	}
 }
 
@@ -120,15 +87,11 @@ func migrateLatestChanges() {
 	if err != nil {
 		panic(err)
 	}
-	mainOrTest := "test"
-	if !g.CFG.Debug {
-		mainOrTest = "main"
-	}
 	migrations := &migrate.FileMigrationSource{
-		Dir: fmt.Sprintf("migrations/%s/", mainOrTest),
+		Dir: "migrations/",
 	}
 
-	n, err := migrate.Exec(db, g.CFG.Gateway.Databases[mainOrTest].Type, migrations, migrate.Up)
+	n, err := migrate.Exec(db, g.CFG.Gateway.Database.Type, migrations, migrate.Up)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -155,7 +118,6 @@ func init() {
 	initializeConfigs()
 	initialDBs()
 	migrateLatestChanges()
-	initialTranslator()
 	initialLogger()
 	initialMedia()
 	initialCron()

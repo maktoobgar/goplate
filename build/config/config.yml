@@ -5,22 +5,23 @@ logging:
   rotation_time: "24h"
   rotation_size: "20MB"
 
+language:
+  path: "i18n"
+
 ip: 127.0.0.1
 port: 6969
-databases:
-  test:
-    type: "sqlite3"
-    db_name: "test.db"
-    # main:
-    #   type: "postgres"
-    #   username: "postgres"
-    #   password: "M123456789H"
-    #   db_name: "project_db"
-    #   host: "127.0.0.1"
-    #   port: 5432
-    #   ssl_mode: "disable"
-    #   time_zone: "Asia/Tehran"
-    #   charset: "utf8mb4"
+database:
+  type: "sqlite3"
+  db_name: "test.db"
+  # type: "postgres"
+  # username: "postgres"
+  # password: "M123456789H"
+  # db_name: "project_db"
+  # host: "127.0.0.1"
+  # port: 5432
+  # ssl_mode: "disable"
+  # time_zone: "Asia/Tehran"
+  # charset: "utf8mb4"
 
 debug: true
 domain: ""

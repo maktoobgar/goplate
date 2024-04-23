@@ -5,6 +5,7 @@ import db "service/pkg/database"
 type (
 	Config struct {
 		Logging               Logging      `yaml:"logging"`
+		Language              Language     `yaml:language`
 		Gateway               Microservice `yaml:"gateway"`
 		Debug                 bool         `yaml:"debug"`
 		Domain                string       `yaml:"domain"`
@@ -36,9 +37,13 @@ type (
 		RotationSize string `yaml:"rotation_size"`
 	}
 
+	Language struct {
+		Path string `yaml:"path"`
+	}
+
 	Microservice struct {
-		Databases map[string]db.Database `yaml:"databases"`
-		IP        string                 `yaml:"ip"`
-		Port      string                 `yaml:"port"`
+		Database db.Database `yaml:"database"`
+		IP       string      `yaml:"ip"`
+		Port     string      `yaml:"port"`
 	}
 )

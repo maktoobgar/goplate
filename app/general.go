@@ -26,19 +26,16 @@ func info() {
 		mainOrTest = "main"
 		mainOrTestColor = colors.Green + mainOrTest + colors.Reset
 	}
-	for name, database := range g.CFG.Gateway.Databases {
-		if name == mainOrTest {
-			if database.Type == "sqlite3" {
-				fmt.Printf("Main Database:\t\t%v, %v (%v)\n", database.Type, database.DbName, mainOrTestColor)
-			} else {
-				fmt.Printf("Main Database:\t\t%v, %v, %v:%v (%v)\n", database.Type, database.DbName, database.Host, database.Port, mainOrTestColor)
-			}
-			if g.DB == nil {
-				log.Fatal("default database connection is not assigned as main database")
-			}
-			break
-		}
+
+	if g.CFG.Gateway.Database.Type == "sqlite3" {
+		fmt.Printf("Main Database:\t\t%v, %v (%v)\n", g.CFG.Gateway.Database.Type, g.CFG.Gateway.Database.DbName, mainOrTestColor)
+	} else {
+		fmt.Printf("Main Database:\t\t%v, %v, %v:%v (%v)\n", g.CFG.Gateway.Database.Type, g.CFG.Gateway.Database.DbName, g.CFG.Gateway.Database.Host, g.CFG.Gateway.Database.Port, mainOrTestColor)
 	}
+	if g.DB == nil {
+		log.Fatal("default database connection is not assigned as main database")
+	}
+
 	if g.CFG.Debug {
 		fmt.Printf("Debug:\t\t\t%s%v%s\n", colors.Red, g.CFG.Debug, colors.Reset)
 	} else {

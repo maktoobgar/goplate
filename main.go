@@ -6,6 +6,7 @@ import (
 	"os"
 	"service/app"
 	g "service/global"
+	"service/pkg/translator"
 )
 
 func main() {
@@ -20,6 +21,8 @@ func main() {
 		os.Exit(0)
 	} else {
 		switch os.Args[1] {
+		case "translate":
+			translator.GenerateLanguages(g.CFG.Language.Path, "fa")
 		default:
 			flag.Usage()
 			os.Exit(1)

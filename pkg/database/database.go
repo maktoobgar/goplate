@@ -30,17 +30,10 @@ type (
 )
 
 // creates connections and returns connections and main or test database error if anything wrong happened
-func New(dbs map[string]Database, debug bool) (cons map[string]RelationalDatabaseFunction, db RelationalDatabaseFunction, err error) {
-	cons = map[string]RelationalDatabaseFunction{}
-	mainOrTest := "test"
-	if !debug {
-		mainOrTest = "main"
-	}
-
+func New(db Database, debug bool) (RelationalDatabaseFunction, error) {
 	connectionCreatorFunction := func(dbType, config string) RelationalDatabaseFunction {
 		return func() (*sql.DB, error) {
-			var c *sql.DB
-			c, err = sql.Open(dbType, config)
+			c, err := sql.Open(dbType, config)
 			if err != nil {
 				return nil, err
 			}
@@ -48,37 +41,30 @@ func New(dbs map[string]Database, debug bool) (cons map[string]RelationalDatabas
 		}
 	}
 
-	for k, v := range dbs {
-		config := ""
+	config := ""
 
-		switch strings.ToLower(v.Type) {
-		case "mysql":
-			config = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", v.Username, v.Password, v.Host, v.Port, v.DbName)
-		case "sqlite3":
-			if _, err = os.Stat(v.DbName); err != nil {
-				_, err = os.Create(v.DbName)
-				if err != nil {
-					return
-				}
+	switch strings.ToLower(db.Type) {
+	case "mysql":
+		config = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", db.Username, db.Password, db.Host, db.Port, db.DbName)
+	case "sqlite3":
+		if _, err := os.Stat(db.DbName); err != nil {
+			_, err = os.Create(db.DbName)
+			if err != nil {
+				return nil, err
 			}
-			config = fmt.Sprintf("file:%s?cache=shared&mode=rw", v.DbName)
-		case "postgres":
-			config = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", v.Host, v.Port, v.Username, v.Password, v.DbName, v.SSLMode)
-		case "mssql":
-			config = fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;", v.Host, v.Username, v.Password, v.Port, v.DbName)
-		default:
-			log.Fatalf("db: unrecognizable database type `%s`", v.Type)
 		}
-
-		dbFunction := connectionCreatorFunction(v.Type, config)
-		if mainOrTest == k {
-			db = dbFunction
-		}
-
-		cons[k] = dbFunction
+		config = fmt.Sprintf("file:%s?cache=shared&mode=rw", db.DbName)
+	case "postgres":
+		config = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", db.Host, db.Port, db.Username, db.Password, db.DbName, db.SSLMode)
+	case "mssql":
+		config = fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;", db.Host, db.Username, db.Password, db.Port, db.DbName)
+	default:
+		log.Fatalf("db: unrecognizable database type `%s`", db.Type)
 	}
 
-	return
+	dbFunc := connectionCreatorFunction(db.Type, config)
+
+	return dbFunc, nil
 }
 
 func CloseDBs(cons map[string]*sql.DB) {

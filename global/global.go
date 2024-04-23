@@ -9,7 +9,6 @@ import (
 	db "service/pkg/database"
 	"service/pkg/logging"
 	media_manager "service/pkg/media"
-	"service/pkg/translator"
 
 	"github.com/kataras/iris/v12"
 	"github.com/robfig/cron/v3"
@@ -73,20 +72,12 @@ var SecretKeyBytes []byte
 
 // Utilities
 var Logger logging.Logger = nil
-var Translator translator.Translator = nil
 
 // App
 var App *iris.Application = nil
 
-// Main database type goes here
-// Example: sqlite3 or postgres
-var MainDatabaseType = ""
-
 // Default DB
 var DB db.RelationalDatabaseFunction = nil
-
-// Connections
-var AllSQLCons = map[string]db.RelationalDatabaseFunction{}
 
 // Media manager for all medias
 var Media media_manager.MediaManager = nil
