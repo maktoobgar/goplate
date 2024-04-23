@@ -65,7 +65,7 @@ func getLanguages(address, mainLang string) []string {
 	return languages
 }
 
-func getWords(address, mainLang string) map[string]string {
+func getWords(address, mainLang string) (map[string]string, []string) {
 	mainLangPath := filepath.Join(address, "languages/"+mainLang+".go")
 	body, err := os.ReadFile(mainLangPath)
 	if err != nil {
@@ -84,9 +84,10 @@ func getWords(address, mainLang string) map[string]string {
 	if len(matches) > 0 {
 		wordsRaw = regexp.MustCompile("\n}.*").ReplaceAllString(regexp.MustCompile(`interfaces\.Words\s*{[\n ]*`).ReplaceAllString(matches[0], ""), "")
 	} else {
-		return nil
+		return nil, nil
 	}
 
+	keys := []string{}
 	var keyValues = map[string]string{}
 	for _, rawKeyValue := range strings.Split(wordsRaw, "\n") {
 		rawKeyValue = strings.TrimSpace(rawKeyValue)
@@ -95,10 +96,11 @@ func getWords(address, mainLang string) map[string]string {
 			var key = cases.Title(language.English, cases.Compact).String(strings.Trim(strings.TrimSpace(keyValue[0]), "\""))
 			var value = strings.Trim(strings.TrimSuffix(strings.TrimSpace(keyValue[1]), ","), "\"")
 
+			keys = append(keys, key)
 			keyValues[key] = value
 		}
 	}
-	return keyValues
+	return keyValues, keys
 }
 
 func getLangVariables(address string, languages []string) map[string]string {
@@ -118,14 +120,14 @@ func getLangVariables(address string, languages []string) map[string]string {
 	return varNames
 }
 
-func createInterface(address string, languages []string, words map[string]string) string {
+func createInterface(address string, languages []string, words map[string]string, wordsKeysInOrder []string) string {
 	interfacePath := filepath.Join(address, "interfaces/interface.go")
 	_ = interfacePath
 	oneKeyValue := "	%s string\n"
 	oneKeyValueI := "	%s() string\n"
 	rows := ""
 	rowsI := ""
-	for key := range words {
+	for _, key := range wordsKeysInOrder {
 		var row = fmt.Sprintf(oneKeyValue, key)
 		var rowI = fmt.Sprintf(oneKeyValueI, key)
 		rows += row
@@ -156,11 +158,11 @@ func createInterface(address string, languages []string, words map[string]string
 	return content
 }
 
-func generateActualFunctions(address string, words map[string]string) {
+func generateActualFunctions(address string, words map[string]string, wordsKeysInOrder []string) {
 	translatorsPath := filepath.Join(address, "translators.go")
 	oneFunc := "\nfunc (t *translator) %s() string {\n\treturn t.dictionary.%s\n}\n"
 	functions := ""
-	for key := range words {
+	for _, key := range wordsKeysInOrder {
 		functions += fmt.Sprintf(oneFunc, key, key)
 	}
 	file, err := os.Create(translatorsPath)
@@ -183,9 +185,9 @@ func GenerateLanguages(address, mainLang string) {
 	}
 
 	languages := getLanguages(address, mainLang)
-	words := getWords(address, mainLang)
+	words, wordsKeysInOrder := getWords(address, mainLang)
 	langVariables := getLangVariables(address, languages)
-	createInterface(address, languages, words)
-	generateActualFunctions(address, words)
+	createInterface(address, languages, words, wordsKeysInOrder)
+	generateActualFunctions(address, words, wordsKeysInOrder)
 	_ = langVariables
 }

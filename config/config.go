@@ -38,7 +38,8 @@ type (
 	}
 
 	Language struct {
-		Path string `yaml:"path"`
+		Path            string `yaml:"path"`
+		DefaultLanguage string `yaml:"default_language"`
 	}
 
 	Microservice struct {
