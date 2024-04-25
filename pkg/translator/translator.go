@@ -201,22 +201,28 @@ func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, inputs map[
 
 	for _, complexOrValue := range wordsKeysInOrder {
 		if key, ok := complexOrValue.(string); ok {
-			nextFinalInputs, ok := inputs[key].(map[string]string)
+			nextFinalInputs, ok := inputs[key].(map[any]any)
 			if !ok {
-				nextFinalInputs = map[string]string{}
+				nextFinalInputs = map[any]any{}
+			}
+
+			arrs := ""
+			fmtArrs := ""
+			keysInOrder, ok := nextFinalInputs["in_order_keys"].([]string)
+			if !ok {
+				keysInOrder = []string{}
+			}
+
+			for _, key := range keysInOrder {
+				if arrs == "" {
+					arrs = fmt.Sprintf("%s %s", key, nextFinalInputs[key])
+				} else {
+					arrs += fmt.Sprintf(", %s %s", key, nextFinalInputs[key])
+				}
 			}
 
 			matches := re.FindAllStringSubmatch(words[key].(string), int(math.Inf(1)))
-			arrs := ""
-			fmtArrs := ""
 			for _, match := range matches {
-				if !strings.Contains(arrs, match[1]) {
-					if arrs == "" {
-						arrs = fmt.Sprintf("%s %s", match[1], nextFinalInputs[match[1]])
-					} else {
-						arrs += fmt.Sprintf(", %s %s", match[1], nextFinalInputs[match[1]])
-					}
-				}
 				if fmtArrs == "" {
 					fmtArrs = match[1]
 				} else {
@@ -225,13 +231,6 @@ func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, inputs map[
 			}
 			matches = reWithoutType.FindAllStringSubmatch(words[key].(string), int(math.Inf(1)))
 			for _, match := range matches {
-				if !strings.Contains(arrs, match[1]) {
-					if arrs == "" {
-						arrs = fmt.Sprintf("%s %s", match[1], nextFinalInputs[match[1]])
-					} else {
-						arrs += fmt.Sprintf(", %s %s", match[1], nextFinalInputs[match[1]])
-					}
-				}
 				if fmtArrs == "" {
 					fmtArrs = match[1]
 				} else {
@@ -347,16 +346,17 @@ func createTranslator(address string, languages []string, mainLang string) {
 
 func returnMethodInputs(words map[any]any) map[any]any {
 	output := make(map[any]any)
-	re, _ := regexp.Compile(`{(\w+):(int|string)}`)
+	re, _ := regexp.Compile(`{(\w+):(int|float|string)}`)
 	for word, value := range words {
 		inputs := make(map[any]any)
+		inputsInOrder := make([]string, 0)
 		if v, ok := value.(string); ok {
-			inputsInternal := make(map[string]string)
 			matches := re.FindAllStringSubmatch(v, int(math.Inf(1)))
 			for _, match := range matches {
-				inputsInternal[match[1]] = match[2]
+				inputs[match[1]] = match[2]
+				inputsInOrder = append(inputsInOrder, match[1])
 			}
-			output[word] = inputsInternal
+			inputs["in_order_keys"] = inputsInOrder
 		} else if v, ok := value.(map[any]any); ok {
 			inputs = returnMethodInputs(v)
 		}

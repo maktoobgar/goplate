@@ -1,5 +1,5 @@
 Key: "title"
-Key2: "something {message} {new}"
+Key2: "something {message}"
 Other: "Hi"
 Voice: "English"
 New:

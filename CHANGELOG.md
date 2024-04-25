@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🐛 fix: bug fix on generating code
 - 🎉 feat: translator completed
 - 🎉 feat: added returnMethodInputs function
 - 🎉 feat: translator basic functionality implemented

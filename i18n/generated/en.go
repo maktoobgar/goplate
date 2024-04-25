@@ -9,7 +9,7 @@ func (t *TranslatorEn) Key() string {
 }
 
 func (t *TranslatorEn) Key2(message int, new string) string {
-	return fmt.Sprintf("something %v %v", message, new)
+	return fmt.Sprintf("something %v", message)
 }
 
 func (t *TranslatorEn) New() TranslatorNewI {
