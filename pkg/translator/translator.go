@@ -166,7 +166,6 @@ func getWordsForEachLang(address string, words map[any]any, languages []string, 
 		}
 		mainLangPath := filepath.Join(address, "languages/"+lang+".yml")
 		_words := make(map[any]any, 0)
-		_wordsKeysInOrder := make([]any, 0)
 
 		yamlFile, err := os.ReadFile(mainLangPath)
 		if err != nil {
@@ -178,7 +177,7 @@ func getWordsForEachLang(address string, words map[any]any, languages []string, 
 		}
 
 		_words = _holdUpperCase(_words)
-		_wordsKeysInOrder = _getInOrder(_words)
+		_wordsKeysInOrder := _getInOrder(_words)
 
 		_hasDeepSameKeys(words, _words, lang, "current_level")
 
@@ -223,18 +222,22 @@ func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, inputs map[
 
 			matches := re.FindAllStringSubmatch(words[key].(string), int(math.Inf(1)))
 			for _, match := range matches {
-				if fmtArrs == "" {
-					fmtArrs = match[1]
-				} else {
-					fmtArrs += fmt.Sprintf(", %s", match[1])
+				if _, ok := nextFinalInputs[match[1]]; ok {
+					if fmtArrs == "" {
+						fmtArrs = match[1]
+					} else {
+						fmtArrs += fmt.Sprintf(", %s", match[1])
+					}
 				}
 			}
 			matches = reWithoutType.FindAllStringSubmatch(words[key].(string), int(math.Inf(1)))
 			for _, match := range matches {
-				if fmtArrs == "" {
-					fmtArrs = match[1]
-				} else {
-					fmtArrs += fmt.Sprintf(", %s", match[1])
+				if _, ok := nextFinalInputs[match[1]]; ok {
+					if fmtArrs == "" {
+						fmtArrs = match[1]
+					} else {
+						fmtArrs += fmt.Sprintf(", %s", match[1])
+					}
 				}
 			}
 
