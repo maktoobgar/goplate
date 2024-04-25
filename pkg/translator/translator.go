@@ -18,10 +18,10 @@ import (
 
 var translatorContent = `package i18n
 
-import "service/i18n/generated"
+import "service/i18n/interfaces"
 
 // Attribute 'lang' can be %s
-func NewTranslator(lang string) generated.TranslatorI {
+func NewTranslator(lang string) i18nInterfaces.TranslatorI {
 	if len(lang) >= 2 {
 		lang = lang[:2]
 	} else {
@@ -29,14 +29,14 @@ func NewTranslator(lang string) generated.TranslatorI {
 	}
 
 	if lang == "%s" {
-		return &generated.Translator{}
+		return &i18nInterfaces.Translator{}
 	}%s
 
 	return nil
 }
 `
 
-var generatedContent = `package generated%s
+var generatedContent = `package i18nInterfaces%s
 
 %s`
 
@@ -282,7 +282,7 @@ func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, inputs map[
 }
 
 func createInterfaces(address, interfaces string) {
-	interfacePath := filepath.Join(address, "generated/interfaces.go")
+	interfacePath := filepath.Join(address, "interfaces/interfaces.go")
 	content := fmt.Sprintf(generatedContent, "", interfaces)
 
 	file, err := os.Create(interfacePath)
@@ -319,7 +319,7 @@ func createStructs(interfacePath, structs string, addImportFmt bool) {
 
 func createTranslator(address string, languages []string, mainLang string) {
 	interfacePath := filepath.Join(address, "translator.go")
-	elseIfI := " else if lang == \"%s\" {\n\t\treturn &generated.%s{}\n\t}"
+	elseIfI := " else if lang == \"%s\" {\n\t\treturn &i18nInterfaces.%s{}\n\t}"
 
 	langsString := ""
 	elseIfBlock := ""
@@ -378,7 +378,7 @@ func GenerateCode(address, mainLang string) {
 		}
 	}
 
-	generatedFolder := filepath.Join(address, "generated")
+	generatedFolder := filepath.Join(address, "interfaces")
 	if _, err := os.Stat(generatedFolder); err != nil {
 		if err = os.Mkdir(generatedFolder, 509); err != nil {
 			log.Fatalf("translator: can't create folder '%s', err: %v", generatedFolder, err)
@@ -391,11 +391,11 @@ func GenerateCode(address, mainLang string) {
 
 	inputs := returnMethodInputs(words)
 	interfaces, structs := getInterfacesStructs(words, wordsKeysInOrder, inputs, "Translator", "Translator")
-	createStructs(filepath.Join(address, fmt.Sprintf("generated/%s.go", mainLang)), structs, len(inputs) > 0)
+	createStructs(filepath.Join(address, fmt.Sprintf("interfaces/%s.go", mainLang)), structs, len(inputs) > 0)
 	createInterfaces(address, interfaces)
 	for lang := range wordsForEachLangs {
 		_, structs := getInterfacesStructs(wordsForEachLangs[lang], wordsForEachLangsInOrder[lang], inputs, "Translator"+cases.Title(language.English).String(lang), "Translator")
-		createStructs(filepath.Join(address, fmt.Sprintf("generated/%s.go", lang)), structs, len(inputs) > 0)
+		createStructs(filepath.Join(address, fmt.Sprintf("interfaces/%s.go", lang)), structs, len(inputs) > 0)
 	}
 	createTranslator(address, languages, mainLang)
 }

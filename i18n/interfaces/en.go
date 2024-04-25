@@ -1,4 +1,4 @@
-package generated
+package i18nInterfaces
 
 import "fmt"
 
