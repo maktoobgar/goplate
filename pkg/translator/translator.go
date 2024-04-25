@@ -36,7 +36,7 @@ func NewTranslator(lang string) generated.TranslatorI {
 }
 `
 
-var generatedContent = `package generated
+var generatedContent = `package generated%s
 
 %s`
 
@@ -189,25 +189,77 @@ func getWordsForEachLang(address string, words map[any]any, languages []string, 
 	return wordsForEachLangs, wordsForEachLangsInOrder
 }
 
-func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, structKey, structKeySimple string) (string, string) {
-	oneKeyValueI := "	%s() %s\n"
-	oneKeyValueFunc := "\nfunc (t *%s) %s() %s {\n\treturn %s\n}\n"
+func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, inputs map[any]any, structKey, structKeySimple string) (string, string) {
+	re, _ := regexp.Compile(`{(\w+):(int|string)}`)
+	reWithoutType, _ := regexp.Compile(`{(\w+)}`)
+	oneKeyValueI := "	%s(%s) %s\n"
+	oneKeyValueFunc := "\nfunc (t *%s) %s(%s) %s {\n\treturn %s\n}\n"
 	singleInterface := ""
 	singleStruct := ""
 	interfaces := []string{}
 	structs := []string{}
+
 	for _, complexOrValue := range wordsKeysInOrder {
-		if _, ok := complexOrValue.(string); ok {
-			singleInterface += fmt.Sprintf(oneKeyValueI, complexOrValue, "string")
-			singleStruct += fmt.Sprintf(oneKeyValueFunc, structKey, complexOrValue, "string", fmt.Sprintf("\"%s\"", words[complexOrValue]))
+		if key, ok := complexOrValue.(string); ok {
+			nextFinalInputs, ok := inputs[key].(map[string]string)
+			if !ok {
+				nextFinalInputs = map[string]string{}
+			}
+
+			matches := re.FindAllStringSubmatch(words[key].(string), int(math.Inf(1)))
+			arrs := ""
+			fmtArrs := ""
+			for _, match := range matches {
+				if !strings.Contains(arrs, match[1]) {
+					if arrs == "" {
+						arrs = fmt.Sprintf("%s %s", match[1], nextFinalInputs[match[1]])
+					} else {
+						arrs += fmt.Sprintf(", %s %s", match[1], nextFinalInputs[match[1]])
+					}
+				}
+				if fmtArrs == "" {
+					fmtArrs = match[1]
+				} else {
+					fmtArrs += fmt.Sprintf(", %s", match[1])
+				}
+			}
+			matches = reWithoutType.FindAllStringSubmatch(words[key].(string), int(math.Inf(1)))
+			for _, match := range matches {
+				if !strings.Contains(arrs, match[1]) {
+					if arrs == "" {
+						arrs = fmt.Sprintf("%s %s", match[1], nextFinalInputs[match[1]])
+					} else {
+						arrs += fmt.Sprintf(", %s %s", match[1], nextFinalInputs[match[1]])
+					}
+				}
+				if fmtArrs == "" {
+					fmtArrs = match[1]
+				} else {
+					fmtArrs += fmt.Sprintf(", %s", match[1])
+				}
+			}
+
+			valueFormatted := reWithoutType.ReplaceAllString(re.ReplaceAllString(words[key].(string), "%v"), "%v")
+			if fmtArrs != "" {
+				valueFormatted = fmt.Sprintf("fmt.Sprintf(\"%s\", %s)", valueFormatted, fmtArrs)
+			} else {
+				valueFormatted = fmt.Sprintf("\"%s\"", valueFormatted)
+			}
+
+			singleInterface += fmt.Sprintf(oneKeyValueI, complexOrValue, arrs, "string")
+			singleStruct += fmt.Sprintf(oneKeyValueFunc, structKey, complexOrValue, arrs, "string", valueFormatted)
 		} else if complex, ok := complexOrValue.(map[any]any); ok {
 			for k, v := range complex {
 				var justKey = structKey + k.(string)
 				var justSimpleKey = structKeySimple + k.(string)
-				singleInterface += fmt.Sprintf(oneKeyValueI, k.(string), justKey+"I")
-				singleStruct += fmt.Sprintf(oneKeyValueFunc, structKey, k.(string), justSimpleKey+"I", fmt.Sprintf("&%s{}", justKey))
+				singleInterface += fmt.Sprintf(oneKeyValueI, k.(string), "", justKey+"I")
+				singleStruct += fmt.Sprintf(oneKeyValueFunc, structKey, k.(string), "", justSimpleKey+"I", fmt.Sprintf("&%s{}", justKey))
 				if words[k.(string)] != nil {
-					oneInterface, oneStruct := getInterfacesStructs(words[k.(string)].(map[any]any), v.([]any), justKey, justSimpleKey)
+					nextInputs, ok := inputs[k.(string)].(map[any]any)
+					if !ok {
+						nextInputs = map[any]any{}
+					}
+					oneInterface, oneStruct := getInterfacesStructs(words[k.(string)].(map[any]any), v.([]any), nextInputs, justKey, justSimpleKey)
 					interfaces = append(interfaces, oneInterface)
 					structs = append(structs, oneStruct)
 				}
@@ -228,8 +280,8 @@ func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, structKey, 
 }
 
 func createInterfaces(address, interfaces string) {
-	content := fmt.Sprintf(generatedContent, interfaces)
 	interfacePath := filepath.Join(address, "generated/interfaces.go")
+	content := fmt.Sprintf(generatedContent, "", interfaces)
 
 	file, err := os.Create(interfacePath)
 	if err != nil {
@@ -243,8 +295,13 @@ func createInterfaces(address, interfaces string) {
 	}
 }
 
-func createStructs(interfacePath, structs string) {
-	content := fmt.Sprintf(generatedContent, structs)
+func createStructs(interfacePath, structs string, addImportFmt bool) {
+	content := ""
+	if addImportFmt {
+		content = fmt.Sprintf(generatedContent, "\n\nimport \"fmt\"", structs)
+	} else {
+		content = fmt.Sprintf(generatedContent, "", structs)
+	}
 
 	file, err := os.Create(interfacePath)
 	if err != nil {
@@ -290,14 +347,16 @@ func createTranslator(address string, languages []string, mainLang string) {
 
 func returnMethodInputs(words map[any]any) map[any]any {
 	output := make(map[any]any)
-	re, _ := regexp.Compile(`{(\w+):(number|string)}`)
+	re, _ := regexp.Compile(`{(\w+):(int|string)}`)
 	for word, value := range words {
 		inputs := make(map[any]any)
 		if v, ok := value.(string); ok {
+			inputsInternal := make(map[string]string)
 			matches := re.FindAllStringSubmatch(v, int(math.Inf(1)))
 			for _, match := range matches {
-				inputs[match[1]] = match[2]
+				inputsInternal[match[1]] = match[2]
 			}
+			output[word] = inputsInternal
 		} else if v, ok := value.(map[any]any); ok {
 			inputs = returnMethodInputs(v)
 		}
@@ -327,13 +386,13 @@ func GenerateCode(address, mainLang string) {
 	words, wordsKeysInOrder := getWords(address, mainLang)
 	wordsForEachLangs, wordsForEachLangsInOrder := getWordsForEachLang(address, words, languages, mainLang)
 
-	interfaces, structs := getInterfacesStructs(words, wordsKeysInOrder, "Translator", "Translator")
-	createStructs(filepath.Join(address, fmt.Sprintf("generated/%s.go", mainLang)), structs)
+	inputs := returnMethodInputs(words)
+	interfaces, structs := getInterfacesStructs(words, wordsKeysInOrder, inputs, "Translator", "Translator")
+	createStructs(filepath.Join(address, fmt.Sprintf("generated/%s.go", mainLang)), structs, len(inputs) > 0)
 	createInterfaces(address, interfaces)
 	for lang := range wordsForEachLangs {
-		_, structs := getInterfacesStructs(wordsForEachLangs[lang], wordsForEachLangsInOrder[lang], "Translator"+cases.Title(language.English).String(lang), "Translator")
-		createStructs(filepath.Join(address, fmt.Sprintf("generated/%s.go", lang)), structs)
+		_, structs := getInterfacesStructs(wordsForEachLangs[lang], wordsForEachLangsInOrder[lang], inputs, "Translator"+cases.Title(language.English).String(lang), "Translator")
+		createStructs(filepath.Join(address, fmt.Sprintf("generated/%s.go", lang)), structs, len(inputs) > 0)
 	}
 	createTranslator(address, languages, mainLang)
-	fmt.Println(returnMethodInputs(words))
 }

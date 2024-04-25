@@ -1,6 +1,6 @@
 Key: "title"
-Key2: "something {message:number} {new:string}"
+Key2: "something {message:int} {new:string}"
 Other: "ی سری چیزا به فارسی"
 Voice: "h"
 New:
-  S: empty {parameter:number}
+  S: empty {parameter:int}

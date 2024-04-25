@@ -1,7 +1,7 @@
 Key: "title"
-Key2: "something {message:number}"
+Key2: "something {message} {new}"
 Other: "Hi"
 Voice: "English"
 New:
   K: ""
-  S: ""
+  S: "{parameter}"

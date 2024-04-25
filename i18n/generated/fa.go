@@ -1,13 +1,15 @@
 package generated
 
+import "fmt"
+
 type Translator struct{}
 
 func (t *Translator) Key() string {
 	return "title"
 }
 
-func (t *Translator) Key2() string {
-	return "something {message:number} {new:string}"
+func (t *Translator) Key2(message int, new string) string {
+	return fmt.Sprintf("something %v %v", message, new)
 }
 
 func (t *Translator) New() TranslatorNewI {
@@ -24,6 +26,6 @@ func (t *Translator) Voice() string {
 
 type TranslatorNew struct{}
 
-func (t *TranslatorNew) S() string {
-	return "empty {parameter:number}"
+func (t *TranslatorNew) S(parameter int) string {
+	return fmt.Sprintf("empty %v", parameter)
 }
