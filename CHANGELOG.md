@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: added returnMethodInputs function
 - 🎉 feat: translator basic functionality implemented
 - 🎉 feat: translator package recreated
 

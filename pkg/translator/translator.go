@@ -3,8 +3,10 @@ package translator
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -286,7 +288,28 @@ func createTranslator(address string, languages []string, mainLang string) {
 	}
 }
 
-func GenerateLanguages(address, mainLang string) {
+func returnMethodInputs(words map[any]any) map[any]any {
+	output := make(map[any]any)
+	re, _ := regexp.Compile(`{(\w+):(number|string)}`)
+	for word, value := range words {
+		inputs := make(map[any]any)
+		if v, ok := value.(string); ok {
+			matches := re.FindAllStringSubmatch(v, int(math.Inf(1)))
+			for _, match := range matches {
+				inputs[match[1]] = match[2]
+			}
+		} else if v, ok := value.(map[any]any); ok {
+			inputs = returnMethodInputs(v)
+		}
+		if len(inputs) > 0 {
+			output[word] = inputs
+		}
+	}
+
+	return output
+}
+
+func GenerateCode(address, mainLang string) {
 	if _, err := os.Stat(address); err != nil {
 		if err = os.Mkdir(address, 509); err != nil {
 			log.Fatalf("translator: can't create folder '%s', err: %v", address, err)
@@ -312,8 +335,5 @@ func GenerateLanguages(address, mainLang string) {
 		createStructs(filepath.Join(address, fmt.Sprintf("generated/%s.go", lang)), structs)
 	}
 	createTranslator(address, languages, mainLang)
-	_ = wordsForEachLangsInOrder
-	_ = wordsForEachLangs
-	_ = interfaces
-	_ = languages
+	fmt.Println(returnMethodInputs(words))
 }

@@ -22,7 +22,7 @@ func main() {
 	} else {
 		switch os.Args[1] {
 		case "translate":
-			translator.GenerateLanguages(g.CFG.Language.Path, g.CFG.Language.DefaultLanguage)
+			translator.GenerateCode(g.CFG.Language.Path, g.CFG.Language.DefaultLanguage)
 		default:
 			flag.Usage()
 			os.Exit(1)

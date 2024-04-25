@@ -7,7 +7,7 @@ func (t *Translator) Key() string {
 }
 
 func (t *Translator) Key2() string {
-	return "something {message:number}"
+	return "something {message:number} {new:string}"
 }
 
 func (t *Translator) New() TranslatorNewI {
@@ -25,5 +25,5 @@ func (t *Translator) Voice() string {
 type TranslatorNew struct{}
 
 func (t *TranslatorNew) S() string {
-	return "empty"
+	return "empty {parameter:number}"
 }
