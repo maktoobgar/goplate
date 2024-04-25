@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: translator basic functionality implemented
 - 🎉 feat: translator package recreated
 
 <!-- ## [0.0.2] - 2022-12-07

@@ -5,37 +5,38 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
+	"sort"
 	"strings"
-	"unicode"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"gopkg.in/yaml.v2"
 )
 
-var interfaceContent = `package interfaces
+var translatorContent = `package i18n
 
-type Words struct {
-%s
-}
+import "service/i18n/generated"
 
-type WordsI interface {
-%s
-}
+// Attribute 'lang' can be %s
+func NewTranslator(lang string) generated.TranslatorI {
+	if len(lang) >= 2 {
+		lang = lang[:2]
+	} else {
+		lang = "%s"
+	}
 
-type I18N interface {
-%s
-}
-`
+	if lang == "%s" {
+		return &generated.Translator{}
+	}%s
 
-var translatorsContent = `package i18n
-
-import "service/i18n/interfaces"
-
-type translator struct {
-	dictionary interfaces.Words
+	return nil
 }
 `
+
+var generatedContent = `package generated
+
+%s`
 
 func getLanguages(address, mainLang string) []string {
 	langsPath := filepath.Join(address, "languages")
@@ -47,104 +48,187 @@ func getLanguages(address, mainLang string) []string {
 
 	files, err := os.ReadDir(langsPath)
 	if err != nil {
-		log.Fatalf("translator: can't read folder '%s', err: %v", langsPath, err)
+		log.Fatalf("translator: can't access folder '%s', err: %v", langsPath, err)
 	}
 
 	if len(files) == 0 {
-		enFileAddr := filepath.Join(langsPath, mainLang+".go")
+		enFileAddr := filepath.Join(langsPath, mainLang+".yml")
 		if _, err = os.Create(enFileAddr); err != nil {
-			log.Fatalf("translator: can't read folder '%s', err: %v", enFileAddr, err)
+			log.Fatalf("translator: can't read file '%s', err: %v", enFileAddr, err)
 		}
 	}
 
 	languages := []string{}
 	for _, file := range files {
-		languageName, _ := strings.CutSuffix(file.Name(), ".go")
+		languageName, _ := strings.CutSuffix(file.Name(), ".yml")
 		languages = append(languages, languageName)
 	}
 	return languages
 }
 
-func getWords(address, mainLang string) (map[string]string, []string) {
-	mainLangPath := filepath.Join(address, "languages/"+mainLang+".go")
-	body, err := os.ReadFile(mainLangPath)
-	if err != nil {
-		log.Fatalf("translator: can't read file '%s', err: %v", mainLangPath, err)
-	}
-
-	if err != nil {
-		log.Fatalf("translator: can't read file '%s', err: %v", mainLangPath, err)
-	}
-	content := string(body)
-
-	pattern := `interfaces\.Words\s*{(.|\n)*\n}.*`
-	re := regexp.MustCompile(pattern)
-	matches := re.FindStringSubmatch(content)
-	wordsRaw := ""
-	if len(matches) > 0 {
-		wordsRaw = regexp.MustCompile("\n}.*").ReplaceAllString(regexp.MustCompile(`interfaces\.Words\s*{[\n ]*`).ReplaceAllString(matches[0], ""), "")
-	} else {
-		return nil, nil
-	}
-
-	keys := []string{}
-	var keyValues = map[string]string{}
-	for _, rawKeyValue := range strings.Split(wordsRaw, "\n") {
-		rawKeyValue = strings.TrimSpace(rawKeyValue)
-		var keyValue = strings.Split(rawKeyValue, ":")
-		if len(keyValue) == 2 {
-			var key = cases.Title(language.English, cases.Compact).String(strings.Trim(strings.TrimSpace(keyValue[0]), "\""))
-			var value = strings.Trim(strings.TrimSuffix(strings.TrimSpace(keyValue[1]), ","), "\"")
-
+func _getInOrder(words map[any]any) []any {
+	keys := make([]any, 0, len(words))
+	for key, value := range words {
+		if val, ok := value.(map[any]any); ok {
+			keys = append(keys, map[any]any{key: _getInOrder(val)})
+		} else {
 			keys = append(keys, key)
-			keyValues[key] = value
 		}
 	}
-	return keyValues, keys
+
+	sort.Slice(keys, func(i, j int) bool {
+		if first, ok := keys[i].(string); ok {
+			if second, ok := keys[j].(string); ok {
+				return first < second
+			} else if second, ok := keys[j].(map[any]any); ok {
+				for k := range second {
+					return first < k.(string)
+				}
+			}
+		} else if first, ok := keys[i].(map[any]any); ok {
+			if second, ok := keys[j].(string); ok {
+				for k := range first {
+					return k.(string) < second
+				}
+			} else if second, ok := keys[j].(map[any]any); ok {
+				for k1 := range first {
+					for k2 := range second {
+						return k1.(string) < k2.(string)
+					}
+				}
+			}
+		}
+		return false
+	})
+
+	return keys
 }
 
-func getLangVariables(address string, languages []string) map[string]string {
-	pattern := `var\s+\w+\s*=\s*interfaces.Words\s*{`
-	re := regexp.MustCompile(pattern)
-	varNames := map[string]string{}
+func _holdUpperCase(words map[any]any) map[any]any {
+	for k, v := range words {
+		key := k.(string)
+		if cases.Title(language.English).String(key) != key {
+			delete(words, key)
+		} else {
+			if value, ok := v.(map[any]any); ok {
+				words[key] = _holdUpperCase(value)
+			}
+		}
+	}
+
+	return words
+}
+
+func getWords(address, mainLang string) (map[any]any, []any) {
+	mainLangPath := filepath.Join(address, "languages/"+mainLang+".yml")
+	words := make(map[any]any)
+
+	yamlFile, err := os.ReadFile(mainLangPath)
+	if err != nil {
+		fmt.Printf("getWords: failed to read '%s', err: %v ", mainLangPath, err)
+	}
+	err = yaml.Unmarshal(yamlFile, words)
+	if err != nil {
+		fmt.Printf("getWords: failed to unmarshal yaml '%s', err: %v ", mainLangPath, err)
+	}
+	words = _holdUpperCase(words)
+
+	return words, _getInOrder(words)
+}
+
+func _hasDeepSameKeys(words1, words2 map[any]any, lang string, beforeKeys string) {
+	for word, v := range words1 {
+		if _, ok := words2[word]; !ok {
+			log.Fatalf("_hasDeepSameKeys: word '%s' doesn't exist in '%s' language in '%s' keys deep", word, lang, beforeKeys)
+		}
+		if v1, ok := v.(map[any]any); ok {
+			if v2, ok := words2[word].(map[any]any); ok {
+				_hasDeepSameKeys(v1, v2, lang, beforeKeys+"."+word.(string))
+			} else {
+				log.Fatalf("_hasDeepSameKeys: word '%s' must have a group of words but in '%s' language in '%s' keys deep it is just a string", word, lang, beforeKeys)
+			}
+		} else if _, ok := v.(string); ok {
+			if _, ok := words2[word].(map[any]any); ok {
+				log.Fatalf("_hasDeepSameKeys: word '%s' must be a string but in '%s' language in '%s' keys deep it has a group of words", word, lang, beforeKeys)
+			}
+		}
+	}
+}
+
+func getWordsForEachLang(address string, words map[any]any, languages []string, mainLang string) (map[string]map[any]any, map[string][]any) {
+	wordsForEachLangs := make(map[string]map[any]any, 0)
+	wordsForEachLangsInOrder := make(map[string][]any, 0)
 	for _, lang := range languages {
-		langAddr := filepath.Join(address, "languages/"+lang+".go")
-		body, err := os.ReadFile(langAddr)
-		if err != nil {
-			log.Fatalf("translator: can't read file '%s', err: %v", langAddr, err)
+		if lang == mainLang {
+			continue
 		}
-		content := string(body)
-		matches := re.FindStringSubmatch(content)
-		varNames[lang] = strings.TrimSpace(strings.TrimPrefix(strings.Split(matches[0], "=")[0], "var"))
+		mainLangPath := filepath.Join(address, "languages/"+lang+".yml")
+		_words := make(map[any]any, 0)
+		_wordsKeysInOrder := make([]any, 0)
+
+		yamlFile, err := os.ReadFile(mainLangPath)
+		if err != nil {
+			fmt.Printf("yamlFile.Get err #%v ", err)
+		}
+		err = yaml.Unmarshal(yamlFile, _words)
+		if err != nil {
+			fmt.Printf("Unmarshal: %v", err)
+		}
+
+		_words = _holdUpperCase(_words)
+		_wordsKeysInOrder = _getInOrder(_words)
+
+		_hasDeepSameKeys(words, _words, lang, "current_level")
+
+		wordsForEachLangs[lang] = _words
+		wordsForEachLangsInOrder[lang] = _wordsKeysInOrder
 	}
-	return varNames
+
+	return wordsForEachLangs, wordsForEachLangsInOrder
 }
 
-func createInterface(address string, languages []string, words map[string]string, wordsKeysInOrder []string) string {
-	interfacePath := filepath.Join(address, "interfaces/interface.go")
-	_ = interfacePath
-	oneKeyValue := "	%s string\n"
-	oneKeyValueI := "	%s() string\n"
-	rows := ""
-	rowsI := ""
-	for _, key := range wordsKeysInOrder {
-		var row = fmt.Sprintf(oneKeyValue, key)
-		var rowI = fmt.Sprintf(oneKeyValueI, key)
-		rows += row
-		rowsI += rowI
+func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, structKey, structKeySimple string) (string, string) {
+	oneKeyValueI := "	%s() %s\n"
+	oneKeyValueFunc := "\nfunc (t *%s) %s() %s {\n\treturn %s\n}\n"
+	singleInterface := ""
+	singleStruct := ""
+	interfaces := []string{}
+	structs := []string{}
+	for _, complexOrValue := range wordsKeysInOrder {
+		if _, ok := complexOrValue.(string); ok {
+			singleInterface += fmt.Sprintf(oneKeyValueI, complexOrValue, "string")
+			singleStruct += fmt.Sprintf(oneKeyValueFunc, structKey, complexOrValue, "string", fmt.Sprintf("\"%s\"", words[complexOrValue]))
+		} else if complex, ok := complexOrValue.(map[any]any); ok {
+			for k, v := range complex {
+				var justKey = structKey + k.(string)
+				var justSimpleKey = structKeySimple + k.(string)
+				singleInterface += fmt.Sprintf(oneKeyValueI, k.(string), justKey+"I")
+				singleStruct += fmt.Sprintf(oneKeyValueFunc, structKey, k.(string), justSimpleKey+"I", fmt.Sprintf("&%s{}", justKey))
+				if words[k.(string)] != nil {
+					oneInterface, oneStruct := getInterfacesStructs(words[k.(string)].(map[any]any), v.([]any), justKey, justSimpleKey)
+					interfaces = append(interfaces, oneInterface)
+					structs = append(structs, oneStruct)
+				}
+			}
+		}
 	}
-	rows = strings.TrimRightFunc(rows, unicode.IsSpace)
-	rowsI = strings.TrimRightFunc(rowsI, unicode.IsSpace)
 
-	oneKeyValueLang := "	%s() WordsI\n"
-	langRows := ""
-	for _, key := range languages {
-		var row = fmt.Sprintf(oneKeyValueLang, strings.ToUpper(key))
-		langRows += row
+	singleStruct = "type " + structKey + " struct{}\n" + singleStruct
+	singleInterface = "type " + structKey + "I" + " interface {\n" + singleInterface + "}\n"
+	for i := 0; i < len(structs); i++ {
+		singleStruct += "\n" + structs[i]
 	}
-	langRows = strings.TrimRightFunc(langRows, unicode.IsSpace)
+	for i := 0; i < len(interfaces); i++ {
+		singleInterface += "\n" + interfaces[i]
+	}
 
-	content := fmt.Sprintf(interfaceContent, rows, rowsI, langRows)
+	return singleInterface, singleStruct
+}
+
+func createInterfaces(address, interfaces string) {
+	content := fmt.Sprintf(generatedContent, interfaces)
+	interfacePath := filepath.Join(address, "generated/interfaces.go")
+
 	file, err := os.Create(interfacePath)
 	if err != nil {
 		log.Fatalf("translator: error creating file '%s', err: %s\n", interfacePath, err)
@@ -155,25 +239,50 @@ func createInterface(address string, languages []string, words map[string]string
 	if err != nil {
 		log.Fatalf("translator: failed to write to file '%s', err: %s\n", interfacePath, err)
 	}
-	return content
 }
 
-func generateActualFunctions(address string, words map[string]string, wordsKeysInOrder []string) {
-	translatorsPath := filepath.Join(address, "translators.go")
-	oneFunc := "\nfunc (t *translator) %s() string {\n\treturn t.dictionary.%s\n}\n"
-	functions := ""
-	for _, key := range wordsKeysInOrder {
-		functions += fmt.Sprintf(oneFunc, key, key)
-	}
-	file, err := os.Create(translatorsPath)
+func createStructs(interfacePath, structs string) {
+	content := fmt.Sprintf(generatedContent, structs)
+
+	file, err := os.Create(interfacePath)
 	if err != nil {
-		log.Fatalf("translator: error creating file '%s', err: %s\n", translatorsPath, err)
+		log.Fatalf("translator: error creating file '%s', err: %s\n", interfacePath, err)
 	}
 	defer file.Close()
 
-	_, err = file.WriteString(translatorsContent + functions)
+	_, err = file.WriteString(content)
 	if err != nil {
-		log.Fatalf("translator: failed to write to file '%s', err: %s\n", translatorsPath, err)
+		log.Fatalf("translator: failed to write to file '%s', err: %s\n", interfacePath, err)
+	}
+}
+
+func createTranslator(address string, languages []string, mainLang string) {
+	interfacePath := filepath.Join(address, "translator.go")
+	elseIfI := " else if lang == \"%s\" {\n\t\treturn &generated.%s{}\n\t}"
+
+	langsString := ""
+	elseIfBlock := ""
+	for i, lang := range languages {
+		if mainLang != lang {
+			elseIfBlock += fmt.Sprintf(elseIfI, lang, fmt.Sprintf("Translator%s", cases.Title(language.English).String(lang)))
+		}
+		if i == 0 {
+			langsString = lang
+			continue
+		}
+		langsString += fmt.Sprintf(", %s", lang)
+	}
+
+	content := fmt.Sprintf(translatorContent, langsString, mainLang, mainLang, elseIfBlock)
+	file, err := os.Create(interfacePath)
+	if err != nil {
+		log.Fatalf("translator: error creating file '%s', err: %s\n", interfacePath, err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(content)
+	if err != nil {
+		log.Fatalf("translator: failed to write to file '%s', err: %s\n", interfacePath, err)
 	}
 }
 
@@ -184,10 +293,27 @@ func GenerateLanguages(address, mainLang string) {
 		}
 	}
 
+	generatedFolder := filepath.Join(address, "generated")
+	if _, err := os.Stat(generatedFolder); err != nil {
+		if err = os.Mkdir(generatedFolder, 509); err != nil {
+			log.Fatalf("translator: can't create folder '%s', err: %v", generatedFolder, err)
+		}
+	}
+
 	languages := getLanguages(address, mainLang)
 	words, wordsKeysInOrder := getWords(address, mainLang)
-	langVariables := getLangVariables(address, languages)
-	createInterface(address, languages, words, wordsKeysInOrder)
-	generateActualFunctions(address, words, wordsKeysInOrder)
-	_ = langVariables
+	wordsForEachLangs, wordsForEachLangsInOrder := getWordsForEachLang(address, words, languages, mainLang)
+
+	interfaces, structs := getInterfacesStructs(words, wordsKeysInOrder, "Translator", "Translator")
+	createStructs(filepath.Join(address, fmt.Sprintf("generated/%s.go", mainLang)), structs)
+	createInterfaces(address, interfaces)
+	for lang := range wordsForEachLangs {
+		_, structs := getInterfacesStructs(wordsForEachLangs[lang], wordsForEachLangsInOrder[lang], "Translator"+cases.Title(language.English).String(lang), "Translator")
+		createStructs(filepath.Join(address, fmt.Sprintf("generated/%s.go", lang)), structs)
+	}
+	createTranslator(address, languages, mainLang)
+	_ = wordsForEachLangsInOrder
+	_ = wordsForEachLangs
+	_ = interfaces
+	_ = languages
 }
