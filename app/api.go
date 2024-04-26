@@ -16,7 +16,8 @@ func API() {
 
 	// Router Settings
 	g.App = app
-	routes.HTTP(app)
+	apiRouter := routes.HTTP(app)
+	routes.AuthHTTP(apiRouter)
 
 	runCronJobs()
 
