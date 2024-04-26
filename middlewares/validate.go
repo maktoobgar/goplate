@@ -6,7 +6,8 @@ import (
 	"reflect"
 	g "service/global"
 	"service/pkg/errors"
-	"service/pkg/translator"
+
+	i18nInterfaces "service/i18n/interfaces"
 
 	"github.com/golodash/galidator"
 	"github.com/kataras/iris/v12"
@@ -28,8 +29,8 @@ func Validate(validator galidator.Validator, inputInstance any) iris.Handler {
 		}
 
 		// Validate and translate error messages if errors exist
-		translate := ctx.Values().Get(g.TranslateKey).(translator.TranslatorFunc)
-		errs := validator.Validate(req, galidator.Translator(translate))
+		translate := ctx.Values().Get(g.TranslateKey).(i18nInterfaces.TranslatorI)
+		errs := validator.Validate(req, galidator.Translator(func(s string) string { return translate.Galidator().Translate(s) }))
 		if errs != nil {
 			panic(errors.New(errors.InvalidStatus, "BodyNotProvidedProperly", "", errs))
 		}

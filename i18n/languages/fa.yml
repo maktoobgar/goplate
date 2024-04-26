@@ -1,6 +1,5 @@
-Key: "title"
-Key2: "something {message:int} {new:string}"
-Other: "ی سری چیزا به فارسی"
-Voice: "h"
-New:
-  S: empty {parameter:int}
+StatusCodes:
+  InternalServerError: "خطایی در سرور رخ داده است"
+  PageNotFound: "صفحه مورد نظر یافت نشد"
+Galidator:
+  Example: "مثال"

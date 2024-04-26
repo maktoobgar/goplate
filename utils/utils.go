@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"reflect"
 	g "service/global"
+	i18nInterfaces "service/i18n/interfaces"
 	"service/pkg/errors"
-	"service/pkg/translator"
 	"sync"
 
 	"github.com/golodash/galidator"
@@ -35,12 +35,12 @@ func sendIfCtxNotCancelled(ctx iris.Context, status int, value any, sendEmpty ..
 	}
 }
 
-func SendJsonMessage(ctx iris.Context, translate translator.TranslatorFunc, message string, data map[string]any, status ...int) {
+func SendJsonMessage(ctx iris.Context, message string, data map[string]any, status ...int) {
 	code := 200
 	if len(status) > 0 {
 		code = status[0]
 	}
-	data["message"] = translate(message)
+	data["message"] = message
 
 	sendIfCtxNotCancelled(ctx, code, data)
 }
@@ -67,20 +67,21 @@ func Panic500(err error) {
 	panic(errors.New(errors.UnexpectedStatus, "InternalServerError", err.Error(), nil))
 }
 
-func SendMessage(ctx iris.Context, translate translator.TranslatorFunc, message string, data ...map[string]any) {
+func SendMessage(ctx iris.Context, message string, data ...map[string]any) {
 	var output = map[string]any{}
 	if len(data) != 0 {
 		output = data[0]
 	}
 
-	output["message"] = translate(message)
+	output["message"] = message
 	sendIfCtxNotCancelled(ctx, -1, output)
 }
 
 func SendPage(ctx iris.Context, dataCount int64, perPage int, page int, data any) {
+	translate := ctx.Values().Get(g.TranslateKey).(i18nInterfaces.TranslatorI)
 	pagesCount := CalculatePagesCount(dataCount, perPage)
 	if page > pagesCount {
-		panic(errors.New(errors.NotFoundStatus, "PageNotFound", fmt.Sprintf("page %d requested but we have %d pages", page, pagesCount)))
+		panic(errors.New(errors.NotFoundStatus, translate.StatusCodes().PageNotFound(), fmt.Sprintf("page %d requested but we have %d pages", page, pagesCount)))
 	}
 	dataValue := reflect.ValueOf(data)
 	if dataValue.Type().Kind() == reflect.Ptr {
@@ -122,8 +123,8 @@ func Min(v1 int, v2 int) int {
 	}
 }
 
-func Validate(data any, validator galidator.Validator, translate translator.TranslatorFunc) {
-	if errs := validator.Validate(data, galidator.Translator(translate)); errs != nil {
+func Validate(data any, validator galidator.Validator, translator func(key string, optionalInputs ...[]any) string) {
+	if errs := validator.Validate(data, func(s string) string { return translator(s) }); errs != nil {
 		panic(errors.New(errors.InvalidStatus, "BodyNotProvidedProperly", "", errs))
 	}
 }

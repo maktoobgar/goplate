@@ -6,6 +6,7 @@ import (
 	"os"
 	"service/app"
 	g "service/global"
+	"service/pkg/colors"
 	"service/pkg/translator"
 )
 
@@ -23,6 +24,13 @@ func main() {
 		switch os.Args[1] {
 		case "translate":
 			translator.GenerateCode(g.CFG.Language.Path, g.CFG.Language.DefaultLanguage)
+			fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sTranslation Finished Successfully%s==%s\n", colors.Green, colors.Cyan, colors.Reset))
+		case "migrate":
+			app.MigrateLatestChanges()
+			fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sMigration Finished Successfully%s==%s\n", colors.Green, colors.Cyan, colors.Reset))
+		case "demigrate":
+			app.DemigrateOneChange()
+			fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sDemigration Finished Successfully%s==%s\n", colors.Green, colors.Cyan, colors.Reset))
 		default:
 			flag.Usage()
 			os.Exit(1)

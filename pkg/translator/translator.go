@@ -40,6 +40,35 @@ var generatedContent = `package i18nInterfaces%s
 
 %s`
 
+var translateWithKeyContent = `func translate(instance any, key string, optionalInputs ...[]any) string {
+	structType := reflect.TypeOf(instance)
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+
+	// Iterate over all methods of the struct
+	for i := 0; i < structType.NumMethod(); i++ {
+		method := structType.Method(i)
+		if method.Name == key {
+			reflectValues := make([]reflect.Value, len(inputs))
+			for i, v := range inputs {
+				reflectValues[i] = reflect.ValueOf(v)
+			}
+			return method.Func.Call(reflectValues)[0].String()
+		}
+	}
+	return key
+}`
+
+var translateWithKeyContentInStruct = `func (t *%s) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
+}`
+
 func getLanguages(address, mainLang string) []string {
 	langsPath := filepath.Join(address, "languages")
 	if _, err := os.Stat(langsPath); err != nil {
@@ -109,7 +138,7 @@ func _getInOrder(words map[any]any) []any {
 func _holdUpperCase(words map[any]any) map[any]any {
 	for k, v := range words {
 		key := k.(string)
-		if cases.Title(language.English).String(key) != key {
+		if cases.Title(language.English).String(key)[0] != key[0] {
 			delete(words, key)
 		} else {
 			if value, ok := v.(map[any]any); ok {
@@ -269,7 +298,8 @@ func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, inputs map[
 		}
 	}
 
-	singleStruct = "type " + structKey + " struct{}\n" + singleStruct
+	singleInterface += fmt.Sprintf(oneKeyValueI, "Translate", "key string, optionalInputs ...[]any", "string")
+	singleStruct = "type " + structKey + " struct{}\n" + singleStruct + "\n" + fmt.Sprintf(translateWithKeyContentInStruct, structKey) + "\n"
 	singleInterface = "type " + structKey + "I" + " interface {\n" + singleInterface + "}\n"
 	for i := 0; i < len(structs); i++ {
 		singleStruct += "\n" + structs[i]
@@ -283,7 +313,7 @@ func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, inputs map[
 
 func createInterfaces(address, interfaces string) {
 	interfacePath := filepath.Join(address, "interfaces/interfaces.go")
-	content := fmt.Sprintf(generatedContent, "", interfaces)
+	content := fmt.Sprintf(generatedContent, "\n\nimport \"reflect\"", interfaces+"\n"+translateWithKeyContent)
 
 	file, err := os.Create(interfacePath)
 	if err != nil {
@@ -359,7 +389,9 @@ func returnMethodInputs(words map[any]any) map[any]any {
 				inputs[match[1]] = match[2]
 				inputsInOrder = append(inputsInOrder, match[1])
 			}
-			inputs["in_order_keys"] = inputsInOrder
+			if len(inputsInOrder) > 0 {
+				inputs["in_order_keys"] = inputsInOrder
+			}
 		} else if v, ok := value.(map[any]any); ok {
 			inputs = returnMethodInputs(v)
 		}

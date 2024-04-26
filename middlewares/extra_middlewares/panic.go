@@ -8,15 +8,15 @@ import (
 
 	"service/dto"
 	g "service/global"
+	i18nInterfaces "service/i18n/interfaces"
 
 	"service/pkg/errors"
-	"service/pkg/translator"
 
 	"github.com/kataras/iris/v12"
 )
 
 func Panic(ctx iris.Context) {
-	translate := ctx.Values().Get(g.TranslateKey).(translator.TranslatorFunc)
+	translate := ctx.Values().Get(g.TranslateKey).(i18nInterfaces.TranslatorI)
 
 	defer func() {
 		errInterface := recover()
@@ -47,7 +47,7 @@ func Panic(ctx iris.Context) {
 						g.Logger.Panic(errInterface, ctx.Request(), stack)
 					}
 					res := dto.PanicResponse{
-						Message: translate(message),
+						Message: message,
 						Code:    code,
 						Errors:  errors,
 					}
@@ -57,7 +57,7 @@ func Panic(ctx iris.Context) {
 					ctx.StopWithJSON(res.Code, res)
 				} else {
 					res := dto.PanicResponse{
-						Message: translate(message),
+						Message: message,
 						Code:    code,
 						Errors:  errors,
 					}
@@ -70,7 +70,7 @@ func Panic(ctx iris.Context) {
 				stack := string(debug.Stack())
 				g.Logger.Panic(errInterface, ctx.Request(), stack)
 				res := dto.PanicResponse{
-					Message: translate("InternalServerError"),
+					Message: translate.StatusCodes().InternalServerError(),
 					Code:    http.StatusInternalServerError,
 					Errors:  nil,
 				}

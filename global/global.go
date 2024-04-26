@@ -82,9 +82,7 @@ var DB db.RelationalDatabaseFunction = nil
 // Media manager for all medias
 var Media media_manager.MediaManager = nil
 
-var UsersMedia media_manager.MediaManager = nil
-
 // Cron of the project
 var Cron *cron.Cron = nil
 
-var MediaServeAddress = "/media"
+var MediaServePath = "/"

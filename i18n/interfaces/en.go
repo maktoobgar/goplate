@@ -1,35 +1,51 @@
 package i18nInterfaces
 
-import "fmt"
-
 type TranslatorEn struct{}
 
-func (t *TranslatorEn) Key() string {
-	return "title"
+func (t *TranslatorEn) Galidator() TranslatorGalidatorI {
+	return &TranslatorEnGalidator{}
 }
 
-func (t *TranslatorEn) Key2(message int, new string) string {
-	return fmt.Sprintf("something %v", message)
+func (t *TranslatorEn) StatusCodes() TranslatorStatusCodesI {
+	return &TranslatorEnStatusCodes{}
 }
 
-func (t *TranslatorEn) New() TranslatorNewI {
-	return &TranslatorEnNew{}
+func (t *TranslatorEn) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
 }
 
-func (t *TranslatorEn) Other() string {
-	return "Hi"
+type TranslatorEnGalidator struct{}
+
+func (t *TranslatorEnGalidator) Example() string {
+	return "example"
 }
 
-func (t *TranslatorEn) Voice() string {
-	return "English"
+func (t *TranslatorEnGalidator) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
 }
 
-type TranslatorEnNew struct{}
+type TranslatorEnStatusCodes struct{}
 
-func (t *TranslatorEnNew) K() string {
-	return ""
+func (t *TranslatorEnStatusCodes) InternalServerError() string {
+	return "Internal server error"
 }
 
-func (t *TranslatorEnNew) S(parameter int) string {
-	return fmt.Sprintf("%v", parameter)
+func (t *TranslatorEnStatusCodes) PageNotFound() string {
+	return "Page not found"
+}
+
+func (t *TranslatorEnStatusCodes) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
 }

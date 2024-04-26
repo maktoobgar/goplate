@@ -1,31 +1,51 @@
 package i18nInterfaces
 
-import "fmt"
-
 type Translator struct{}
 
-func (t *Translator) Key() string {
-	return "title"
+func (t *Translator) Galidator() TranslatorGalidatorI {
+	return &TranslatorGalidator{}
 }
 
-func (t *Translator) Key2(message int, new string) string {
-	return fmt.Sprintf("something %v %v", message, new)
+func (t *Translator) StatusCodes() TranslatorStatusCodesI {
+	return &TranslatorStatusCodes{}
 }
 
-func (t *Translator) New() TranslatorNewI {
-	return &TranslatorNew{}
+func (t *Translator) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
 }
 
-func (t *Translator) Other() string {
-	return "ی سری چیزا به فارسی"
+type TranslatorGalidator struct{}
+
+func (t *TranslatorGalidator) Example() string {
+	return "مثال"
 }
 
-func (t *Translator) Voice() string {
-	return "h"
+func (t *TranslatorGalidator) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
 }
 
-type TranslatorNew struct{}
+type TranslatorStatusCodes struct{}
 
-func (t *TranslatorNew) S(parameter int) string {
-	return fmt.Sprintf("empty %v", parameter)
+func (t *TranslatorStatusCodes) InternalServerError() string {
+	return "خطایی در سرور رخ داده است"
+}
+
+func (t *TranslatorStatusCodes) PageNotFound() string {
+	return "صفحه مورد نظر یافت نشد"
+}
+
+func (t *TranslatorStatusCodes) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
 }

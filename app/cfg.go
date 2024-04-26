@@ -9,7 +9,6 @@ import (
 
 	"github.com/robfig/cron/v3"
 	migrate "github.com/rubenv/sql-migrate"
-	"golang.org/x/text/language"
 
 	"service/build"
 	iconfig "service/config"
@@ -22,8 +21,7 @@ import (
 )
 
 var (
-	cfg       = &iconfig.Config{}
-	languages = []language.Tag{language.English, language.Persian}
+	cfg = &iconfig.Config{}
 )
 
 // Set Project PWD
@@ -82,7 +80,7 @@ func initialDBs() {
 	}
 }
 
-func migrateLatestChanges() {
+func MigrateLatestChanges() {
 	db, err := g.DB()
 	if err != nil {
 		panic(err)
@@ -101,10 +99,27 @@ func migrateLatestChanges() {
 	}
 }
 
+func DemigrateOneChange() {
+	db, err := g.DB()
+	if err != nil {
+		panic(err)
+	}
+	migrations := &migrate.FileMigrationSource{
+		Dir: "migrations/",
+	}
+
+	n, err := migrate.ExecMax(db, g.CFG.Gateway.Database.Type, migrations, migrate.Down, 1)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if n > 0 {
+		fmt.Printf("\n%s==%sMigrations%s==%s\n\n", colors.Cyan, colors.Green, colors.Cyan, colors.Reset)
+		fmt.Printf("Reversed %s%d%s migrations!\n", colors.Red, n, colors.Reset)
+	}
+}
+
 func initialMedia() {
 	g.Media = media_manager.NewMediaManager(cfg.Media, true)
-
-	g.UsersMedia, _ = g.Media.GoTo("users", true)
 }
 
 func initialCron() {
@@ -117,7 +132,6 @@ func init() {
 	setPwd()
 	initializeConfigs()
 	initialDBs()
-	migrateLatestChanges()
 	initialLogger()
 	initialMedia()
 	initialCron()

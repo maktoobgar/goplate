@@ -54,8 +54,7 @@ func HTTP(app *iris.Application) {
 
 	{ //* serving static files
 		statics := staticFiles.Party("/")
-
-		statics.HandleDir(g.MediaServeAddress, iris.Dir(g.Media.GetAddress()))
+		statics.HandleDir(g.MediaServePath, iris.Dir(g.Media.GetAddress()))
 	}
 
 	{ //* /api

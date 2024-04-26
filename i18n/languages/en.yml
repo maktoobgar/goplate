@@ -1,7 +1,5 @@
-Key: "title"
-Key2: "something {message}"
-Other: "Hi"
-Voice: "English"
-New:
-  K: ""
-  S: "{parameter}"
+StatusCodes:
+  InternalServerError: "Internal server error"
+  PageNotFound: "Page not found"
+Galidator:
+  Example: "example"
