@@ -14,7 +14,10 @@ func main() {
 	flag.Usage = func() {
 		fmt.Println("Usage of " + g.Name + ":")
 		fmt.Println("\nCommands:")
-		fmt.Println("  command  description")
+		fmt.Println("  translate  translates whole yml files")
+		fmt.Println("  migrate    migrates to the latest changes")
+		fmt.Println("  demigrate  demigrates one migration back")
+		fmt.Println()
 	}
 
 	if len(os.Args) < 2 {

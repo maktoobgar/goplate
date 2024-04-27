@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: added sqlc to the repositories
 - 🎉 feat: hello world in different languages
 - 🎉 feat: migrations for postgres created
 - 🐛 fix: translator works fine now
