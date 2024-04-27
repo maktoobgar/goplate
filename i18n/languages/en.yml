@@ -1,7 +1,0 @@
-StatusCodes:
-  InternalServerError: "Internal server error"
-  PageNotFound: "Page not found"
-Galidator:
-  Example: "example"
-
-HelloWorld: "Hello World"

@@ -7,6 +7,7 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
 )
 
 const getUserById = `-- name: GetUserById :one
@@ -14,7 +15,48 @@ SELECT id, phone_number, email, password, profile, first_name, last_name, displa
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
-	row := q.db.QueryRow(ctx, getUserById, id)
+	row := q.db.QueryRowContext(ctx, getUserById, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.Email,
+		&i.Password,
+		&i.Profile,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.OtpRemainingAttempts,
+		&i.OtpCode,
+		&i.OtpDueDate,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const registerUser = `-- name: RegisterUser :one
+INSERT INTO users (
+  phone_number, email, password
+) VALUES (
+  $1, $2, $3
+)
+RETURNING id, phone_number, email, password, profile, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at
+`
+
+type RegisterUserParams struct {
+	PhoneNumber string         `json:"phone_number"`
+	Email       sql.NullString `json:"email"`
+	Password    string         `json:"password"`
+}
+
+func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, registerUser, arg.PhoneNumber, arg.Email, arg.Password)
 	var i User
 	err := row.Scan(
 		&i.ID,

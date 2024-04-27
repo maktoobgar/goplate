@@ -4,7 +4,7 @@ import (
 	g "service/global"
 	"service/i18n"
 
-	i18nInterfaces "service/i18n/interfaces"
+	"service/i18n/i18n_interfaces"
 
 	"github.com/kataras/iris/v12"
 )
@@ -15,7 +15,7 @@ func Translator(ctx iris.Context) {
 		lang = ctx.GetCookie("Accept-Language")
 	}
 
-	var translateFunc i18nInterfaces.TranslatorI = i18n.NewTranslator(lang)
+	var translateFunc i18n_interfaces.TranslatorI = i18n.NewTranslator(lang)
 	ctx.Values().Set(g.TranslateKey, translateFunc)
 	ctx.Next()
 }

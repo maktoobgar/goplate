@@ -10,7 +10,6 @@ import (
 	"github.com/robfig/cron/v3"
 	migrate "github.com/rubenv/sql-migrate"
 
-	"service/build"
 	iconfig "service/config"
 	g "service/global"
 	"service/pkg/colors"
@@ -42,7 +41,7 @@ func setPwd() {
 // Initialization for config files in configs folder
 func initializeConfigs() {
 	// Loads default config, you just have to hard code it
-	if err := config.ParseYamlBytes(build.Config, cfg); err != nil {
+	if err := config.ParseYamlBytes(iconfig.ConfigData, cfg); err != nil {
 		log.Fatalln(err)
 	}
 

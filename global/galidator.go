@@ -1,10 +1,8 @@
-package dto
+package g
 
-import (
-	"github.com/golodash/galidator"
-)
+import "github.com/golodash/galidator"
 
-var g = galidator.G().CustomValidators(galidator.Validators{}).CustomMessages(galidator.Messages{
+var Galidator = galidator.G().CustomValidators(galidator.Validators{}).CustomMessages(galidator.Messages{
 	// Overrides the default galidator messages
 	"min":      "MinLength",
 	"max":      "MaxLength",

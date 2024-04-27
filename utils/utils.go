@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	g "service/global"
-	i18nInterfaces "service/i18n/interfaces"
+	"service/i18n/i18n_interfaces"
 	"service/pkg/errors"
 	"sync"
 
@@ -78,7 +78,7 @@ func SendMessage(ctx iris.Context, message string, data ...map[string]any) {
 }
 
 func SendPage(ctx iris.Context, dataCount int64, perPage int, page int, data any) {
-	translate := ctx.Values().Get(g.TranslateKey).(i18nInterfaces.TranslatorI)
+	translate := ctx.Values().Get(g.TranslateKey).(i18n_interfaces.TranslatorI)
 	pagesCount := CalculatePagesCount(dataCount, perPage)
 	if page > pagesCount {
 		panic(errors.New(errors.NotFoundStatus, translate.StatusCodes().PageNotFound(), fmt.Sprintf("page %d requested but we have %d pages", page, pagesCount)))

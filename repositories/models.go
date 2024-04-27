@@ -5,57 +5,58 @@
 package repositories
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
+	"time"
 )
 
 type Group struct {
-	ID        int32
-	Name      string
-	CreatedAt pgtype.Timestamptz
+	ID        int32     `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Permission struct {
-	ID           int32
-	PermissionID int32
-	Name         string
-	UserID       pgtype.Int4
-	GroupID      pgtype.Int4
-	CreatedAt    pgtype.Timestamptz
+	ID           int32         `json:"id"`
+	PermissionID int32         `json:"permission_id"`
+	Name         string        `json:"name"`
+	UserID       sql.NullInt32 `json:"user_id"`
+	GroupID      sql.NullInt32 `json:"group_id"`
+	CreatedAt    time.Time     `json:"created_at"`
 }
 
 type Token struct {
-	ID             int32
-	Token          string
-	IsRefreshToken bool
-	UserID         int32
-	ExpiresAt      pgtype.Timestamptz
-	CreatedAt      pgtype.Timestamptz
+	ID             int32        `json:"id"`
+	Token          string       `json:"token"`
+	IsRefreshToken bool         `json:"is_refresh_token"`
+	UserID         int32        `json:"user_id"`
+	ExpiresAt      time.Time    `json:"expires_at"`
+	CreatedAt      sql.NullTime `json:"created_at"`
 }
 
 type User struct {
-	ID                   int32
-	PhoneNumber          string
-	Email                pgtype.Text
-	Password             string
-	Profile              pgtype.Text
-	FirstName            pgtype.Text
-	LastName             pgtype.Text
-	DisplayName          string
-	Gender               int32
-	IsActive             bool
-	Registered           bool
-	DeactivationReason   pgtype.Text
-	IsAdmin              bool
-	OtpRemainingAttempts int32
-	OtpCode              pgtype.Int4
-	OtpDueDate           pgtype.Timestamptz
-	IsSuperuser          bool
-	CreatedAt            pgtype.Timestamptz
+	ID                   int32          `json:"id"`
+	PhoneNumber          string         `json:"phone_number"`
+	Email                sql.NullString `json:"email"`
+	Password             string         `json:"password"`
+	Profile              sql.NullString `json:"profile"`
+	FirstName            sql.NullString `json:"first_name"`
+	LastName             sql.NullString `json:"last_name"`
+	DisplayName          string         `json:"display_name"`
+	Gender               int32          `json:"gender"`
+	IsActive             bool           `json:"is_active"`
+	Registered           bool           `json:"registered"`
+	DeactivationReason   sql.NullString `json:"deactivation_reason"`
+	IsAdmin              bool           `json:"is_admin"`
+	OtpRemainingAttempts int32          `json:"otp_remaining_attempts"`
+	OtpCode              sql.NullInt32  `json:"otp_code"`
+	OtpDueDate           sql.NullTime   `json:"otp_due_date"`
+	IsSuperuser          bool           `json:"is_superuser"`
+	CreatedAt            time.Time      `json:"created_at"`
 }
 
 type UsersGroup struct {
-	ID        int32
-	UserID    int32
-	GroupID   int32
-	CreatedAt pgtype.Timestamptz
+	ID        int32        `json:"id"`
+	UserID    int32        `json:"user_id"`
+	GroupID   int32        `json:"group_id"`
+	CreatedAt sql.NullTime `json:"created_at"`
 }

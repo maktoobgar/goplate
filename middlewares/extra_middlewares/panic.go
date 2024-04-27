@@ -6,17 +6,22 @@ import (
 	"runtime/debug"
 	"sync"
 
-	"service/dto"
 	g "service/global"
-	i18nInterfaces "service/i18n/interfaces"
+	"service/i18n/i18n_interfaces"
 
 	"service/pkg/errors"
 
 	"github.com/kataras/iris/v12"
 )
 
+type PanicResponse struct {
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+	Errors  any    `json:"errors"`
+}
+
 func Panic(ctx iris.Context) {
-	translate := ctx.Values().Get(g.TranslateKey).(i18nInterfaces.TranslatorI)
+	translate := ctx.Values().Get(g.TranslateKey).(i18n_interfaces.TranslatorI)
 
 	defer func() {
 		errInterface := recover()
@@ -46,7 +51,7 @@ func Panic(ctx iris.Context) {
 					if code == 500 {
 						g.Logger.Panic(errInterface, ctx.Request(), stack)
 					}
-					res := dto.PanicResponse{
+					res := PanicResponse{
 						Message: message,
 						Code:    code,
 						Errors:  errors,
@@ -56,7 +61,7 @@ func Panic(ctx iris.Context) {
 					}
 					ctx.StopWithJSON(res.Code, res)
 				} else {
-					res := dto.PanicResponse{
+					res := PanicResponse{
 						Message: message,
 						Code:    code,
 						Errors:  errors,
@@ -69,7 +74,7 @@ func Panic(ctx iris.Context) {
 			} else {
 				stack := string(debug.Stack())
 				g.Logger.Panic(errInterface, ctx.Request(), stack)
-				res := dto.PanicResponse{
+				res := PanicResponse{
 					Message: translate.StatusCodes().InternalServerError(),
 					Code:    http.StatusInternalServerError,
 					Errors:  nil,

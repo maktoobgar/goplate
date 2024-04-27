@@ -1,9 +1,9 @@
 package i18n
 
-import "service/i18n/interfaces"
+import "service/i18n/i18n_interfaces"
 
 // Attribute 'lang' can be en, fa
-func NewTranslator(lang string) i18nInterfaces.TranslatorI {
+func NewTranslator(lang string) i18n_interfaces.TranslatorI {
 	if len(lang) >= 2 {
 		lang = lang[:2]
 	} else {
@@ -11,9 +11,9 @@ func NewTranslator(lang string) i18nInterfaces.TranslatorI {
 	}
 
 	if lang == "fa" {
-		return &i18nInterfaces.Translator{}
+		return &i18n_interfaces.Translator{}
 	} else if lang == "en" {
-		return &i18nInterfaces.TranslatorEn{}
+		return &i18n_interfaces.TranslatorEn{}
 	}
 
 	return nil

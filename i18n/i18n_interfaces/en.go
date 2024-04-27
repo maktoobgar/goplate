@@ -1,4 +1,4 @@
-package i18nInterfaces
+package i18n_interfaces
 
 type TranslatorEn struct{}
 
