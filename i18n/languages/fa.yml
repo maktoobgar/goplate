@@ -3,3 +3,5 @@ StatusCodes:
   PageNotFound: "صفحه مورد نظر یافت نشد"
 Galidator:
   Example: "مثال"
+
+HelloWorld: "درود"

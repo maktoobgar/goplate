@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: hello world in different languages
 - 🎉 feat: migrations for postgres created
 - 🐛 fix: translator works fine now
 - 🐛 fix: bug fix on generating code

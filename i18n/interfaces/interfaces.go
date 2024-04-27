@@ -4,6 +4,7 @@ import "reflect"
 
 type TranslatorI interface {
 	Galidator() TranslatorGalidatorI
+	HelloWorld() string
 	StatusCodes() TranslatorStatusCodesI
 	Translate(key string, optionalInputs ...[]any) string
 }

@@ -3,3 +3,5 @@ StatusCodes:
   PageNotFound: "Page not found"
 Galidator:
   Example: "example"
+
+HelloWorld: "Hello World"

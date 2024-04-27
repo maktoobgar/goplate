@@ -6,6 +6,10 @@ func (t *Translator) Galidator() TranslatorGalidatorI {
 	return &TranslatorGalidator{}
 }
 
+func (t *Translator) HelloWorld() string {
+	return "درود"
+}
+
 func (t *Translator) StatusCodes() TranslatorStatusCodesI {
 	return &TranslatorStatusCodes{}
 }
