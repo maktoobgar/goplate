@@ -12,8 +12,8 @@ import (
 
 type RegisterReq struct {
 	PhoneNumber string `json:"phone_number" g:"required,max=16,phone"`
-	DisplayName string `json:"display_name" g:"required"`
 	Email       string `json:"email" g:"required,max=64"`
+	DisplayName string `json:"display_name" g:"required"`
 	Password    string `json:"password" g:"required,min=3"`
 }
 

@@ -24,8 +24,20 @@ func (t *TranslatorEn) Translate(key string, optionalInputs ...[]any) string {
 
 type TranslatorEnGalidator struct{}
 
-func (t *TranslatorEnGalidator) Example() string {
-	return "example"
+func (t *TranslatorEnGalidator) MaxLength() string {
+	return "must be at most $max characters in length"
+}
+
+func (t *TranslatorEnGalidator) MinLength() string {
+	return "must be at least $min characters in length"
+}
+
+func (t *TranslatorEnGalidator) Phone() string {
+	return "sent phone number is not valid"
+}
+
+func (t *TranslatorEnGalidator) Required() string {
+	return "required"
 }
 
 func (t *TranslatorEnGalidator) Translate(key string, optionalInputs ...[]any) string {
@@ -37,6 +49,10 @@ func (t *TranslatorEnGalidator) Translate(key string, optionalInputs ...[]any) s
 }
 
 type TranslatorEnStatusCodes struct{}
+
+func (t *TranslatorEnStatusCodes) BodyNotProvidedProperly() string {
+	return "Body not provided properly"
+}
 
 func (t *TranslatorEnStatusCodes) InternalServerError() string {
 	return "Internal server error"

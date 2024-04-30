@@ -42,9 +42,9 @@ var generatedContent = `package i18n_interfaces%s
 
 var translateWithKeyContent = `func translate(instance any, key string, optionalInputs ...[]any) string {
 	structType := reflect.TypeOf(instance)
-	inputs := []any{}
+	inputs := []any{instance}
 	if len(optionalInputs) > 0 {
-		inputs = optionalInputs[0]
+		inputs = append(inputs, optionalInputs[0]...)
 	}
 
 	// Iterate over all methods of the struct

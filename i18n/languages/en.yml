@@ -1,7 +1,12 @@
 StatusCodes:
   InternalServerError: "Internal server error"
   PageNotFound: "Page not found"
+  BodyNotProvidedProperly: "Body not provided properly"
+
 Galidator:
-  Example: "example"
+  Required: "required"
+  MinLength: "must be at least $min characters in length"
+  MaxLength: "must be at most $max characters in length"
+  Phone: "sent phone number is not valid"
 
 HelloWorld: "Hello World"

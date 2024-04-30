@@ -12,10 +12,9 @@ import (
 
 func GenerateRepositories(address string) {
 	// Execute sqlc
-	execOutput := exec.Command("sqlc", "generate")
-	if execOutput.Err == nil {
-		execOutput.Err = execOutput.Wait()
-	} else {
+	execOutput := exec.Command("sqlc", "generate", fmt.Sprintf("-f=%s", filepath.Join(address, "sqlc.yml")))
+	execOutput.Run()
+	if execOutput.Err != nil {
 		log.Fatalf("repositories: can't execute '%v', err: %v", strings.ReplaceAll(strings.ReplaceAll(fmt.Sprint(execOutput.Args), "[", ""), "]", ""), execOutput.Err)
 	}
 

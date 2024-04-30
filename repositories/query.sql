@@ -8,3 +8,9 @@ INSERT INTO users (
   @phone_number, @email, @display_name, @password, @created_at
 )
 RETURNING *;
+
+-- name: LoginUserWithPhoneNumber :one
+SELECT * FROM users WHERE phone_number = $1;
+
+-- name: LoginUserWithEmail :one
+SELECT * FROM users WHERE email = $1;

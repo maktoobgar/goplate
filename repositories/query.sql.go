@@ -48,6 +48,74 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
+const loginUserWithEmail = `-- name: LoginUserWithEmail :one
+SELECT id, phone_number, email, password, profile, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at FROM users WHERE email = $1
+`
+
+func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, loginUserWithEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.Email,
+		&i.Password,
+		&i.Profile,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.OtpRemainingAttempts,
+		&i.OtpCode,
+		&i.OtpDueDate,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	if err != nil {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	return i, err
+}
+
+const loginUserWithPhoneNumber = `-- name: LoginUserWithPhoneNumber :one
+SELECT id, phone_number, email, password, profile, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at FROM users WHERE phone_number = $1
+`
+
+func (q *Queries) LoginUserWithPhoneNumber(ctx context.Context, phoneNumber string) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, loginUserWithPhoneNumber, phoneNumber)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.Email,
+		&i.Password,
+		&i.Profile,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.OtpRemainingAttempts,
+		&i.OtpCode,
+		&i.OtpDueDate,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	if err != nil {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	return i, err
+}
+
 const registerUser = `-- name: RegisterUser :one
 INSERT INTO users (
   phone_number, email, display_name, password, created_at

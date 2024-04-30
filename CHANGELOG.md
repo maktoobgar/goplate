@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🐛 fix: bug fix on translator and query generation
 - 🎉 feat: repositories generator added
 - 🎉 feat: added sqlc to the repositories
 - 🎉 feat: hello world in different languages

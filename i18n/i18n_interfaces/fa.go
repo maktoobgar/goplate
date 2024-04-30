@@ -24,8 +24,20 @@ func (t *Translator) Translate(key string, optionalInputs ...[]any) string {
 
 type TranslatorGalidator struct{}
 
-func (t *TranslatorGalidator) Example() string {
-	return "مثال"
+func (t *TranslatorGalidator) MaxLength() string {
+	return "حداکثر باید دارای طول $max کاراکتر باشد"
+}
+
+func (t *TranslatorGalidator) MinLength() string {
+	return "حداقل باید دارای طول $min کاراکتر باشد"
+}
+
+func (t *TranslatorGalidator) Phone() string {
+	return "شماره تماس ارسالی معتبر نمیباشد"
+}
+
+func (t *TranslatorGalidator) Required() string {
+	return "اجباری"
 }
 
 func (t *TranslatorGalidator) Translate(key string, optionalInputs ...[]any) string {
@@ -37,6 +49,10 @@ func (t *TranslatorGalidator) Translate(key string, optionalInputs ...[]any) str
 }
 
 type TranslatorStatusCodes struct{}
+
+func (t *TranslatorStatusCodes) BodyNotProvidedProperly() string {
+	return "درخواست دارای خطاست"
+}
 
 func (t *TranslatorStatusCodes) InternalServerError() string {
 	return "خطایی در سرور رخ داده است"

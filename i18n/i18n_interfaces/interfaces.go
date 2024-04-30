@@ -10,11 +10,15 @@ type TranslatorI interface {
 }
 
 type TranslatorGalidatorI interface {
-	Example() string
+	MaxLength() string
+	MinLength() string
+	Phone() string
+	Required() string
 	Translate(key string, optionalInputs ...[]any) string
 }
 
 type TranslatorStatusCodesI interface {
+	BodyNotProvidedProperly() string
 	InternalServerError() string
 	PageNotFound() string
 	Translate(key string, optionalInputs ...[]any) string
@@ -22,9 +26,9 @@ type TranslatorStatusCodesI interface {
 
 func translate(instance any, key string, optionalInputs ...[]any) string {
 	structType := reflect.TypeOf(instance)
-	inputs := []any{}
+	inputs := []any{instance}
 	if len(optionalInputs) > 0 {
-		inputs = optionalInputs[0]
+		inputs = append(inputs, optionalInputs[0]...)
 	}
 
 	// Iterate over all methods of the struct
