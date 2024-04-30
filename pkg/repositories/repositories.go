@@ -1,14 +1,25 @@
 package repositories
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 )
 
 func GenerateRepositories(address string) {
+	// Execute sqlc
+	execOutput := exec.Command("sqlc", "generate")
+	if execOutput.Err == nil {
+		execOutput.Err = execOutput.Wait()
+	} else {
+		log.Fatalf("repositories: can't execute '%v', err: %v", strings.ReplaceAll(strings.ReplaceAll(fmt.Sprint(execOutput.Args), "[", ""), "]", ""), execOutput.Err)
+	}
+
+	// Read query.sql.go file
 	queriesAddress := filepath.Join(address, "query.sql.go")
 	content, err := os.ReadFile(queriesAddress)
 	if err != nil {

@@ -1,0 +1,7 @@
+StatusCodes:
+  InternalServerError: "خطایی در سرور رخ داده است"
+  PageNotFound: "صفحه مورد نظر یافت نشد"
+Galidator:
+  Example: "مثال"
+
+HelloWorld: "درود"
