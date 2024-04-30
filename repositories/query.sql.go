@@ -8,6 +8,10 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"time"
+	"service/pkg/errors"
+	"service/global"
+	"service/i18n/i18n_interfaces"
 )
 
 const getUserById = `-- name: GetUserById :one
@@ -15,6 +19,7 @@ SELECT id, phone_number, email, password, profile, first_name, last_name, displa
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, getUserById, id)
 	var i User
 	err := row.Scan(
@@ -37,14 +42,17 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
+	if err != nil {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
 	return i, err
 }
 
 const registerUser = `-- name: RegisterUser :one
 INSERT INTO users (
-  phone_number, email, password
+  phone_number, email, display_name, password, created_at
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4, $5
 )
 RETURNING id, phone_number, email, password, profile, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at
 `
@@ -52,11 +60,20 @@ RETURNING id, phone_number, email, password, profile, first_name, last_name, dis
 type RegisterUserParams struct {
 	PhoneNumber string         `json:"phone_number"`
 	Email       sql.NullString `json:"email"`
+	DisplayName string         `json:"display_name"`
 	Password    string         `json:"password"`
+	CreatedAt   time.Time      `json:"created_at"`
 }
 
 func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, registerUser, arg.PhoneNumber, arg.Email, arg.Password)
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, registerUser,
+		arg.PhoneNumber,
+		arg.Email,
+		arg.DisplayName,
+		arg.Password,
+		arg.CreatedAt,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -78,5 +95,8 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
+	if err != nil {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
 	return i, err
 }

@@ -16,6 +16,6 @@ func Translator(ctx iris.Context) {
 	}
 
 	var translateFunc i18n_interfaces.TranslatorI = i18n.NewTranslator(lang)
-	ctx.Values().Set(g.TranslateKey, translateFunc)
+	ctx.Values().Set(g.TranslatorKey, translateFunc)
 	ctx.Next()
 }

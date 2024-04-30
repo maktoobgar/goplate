@@ -78,10 +78,10 @@ func SendMessage(ctx iris.Context, message string, data ...map[string]any) {
 }
 
 func SendPage(ctx iris.Context, dataCount int64, perPage int, page int, data any) {
-	translate := ctx.Values().Get(g.TranslateKey).(i18n_interfaces.TranslatorI)
+	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	pagesCount := CalculatePagesCount(dataCount, perPage)
 	if page > pagesCount {
-		panic(errors.New(errors.NotFoundStatus, translate.StatusCodes().PageNotFound(), fmt.Sprintf("page %d requested but we have %d pages", page, pagesCount)))
+		panic(errors.New(errors.NotFoundStatus, translator.StatusCodes().PageNotFound(), fmt.Sprintf("page %d requested but we have %d pages", page, pagesCount)))
 	}
 	dataValue := reflect.ValueOf(data)
 	if dataValue.Type().Kind() == reflect.Ptr {

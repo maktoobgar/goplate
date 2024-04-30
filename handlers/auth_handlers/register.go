@@ -12,6 +12,7 @@ import (
 
 type RegisterReq struct {
 	PhoneNumber string `json:"phone_number" g:"required,max=16,phone"`
+	DisplayName string `json:"display_name" g:"required"`
 	Email       string `json:"email" g:"required,max=64"`
 	Password    string `json:"password" g:"required,min=3"`
 }
@@ -22,12 +23,9 @@ func Register(ctx iris.Context) {
 	req := ctx.Values().Get(g.RequestBody).(*RegisterReq)
 	db := ctx.Values().Get(g.DbInstance).(*sql.DB)
 
-	user := &repositories.User{}
-	copier.Copy(user, req)
-	user.HashPassword()
+	user := repositories.NewUser(req)
 
-	response := &repositories.RegisterUserParams{}
-	repositories.New(db).RegisterUser(ctx, copier.Copy(response, user).(repositories.RegisterUserParams))
+	user, _ = repositories.New(db).RegisterUser(ctx, copier.Copy(&repositories.RegisterUserParams{}, &user))
 
 	utils.SendJson(ctx, user)
 }

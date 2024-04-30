@@ -21,7 +21,7 @@ type PanicResponse struct {
 }
 
 func Panic(ctx iris.Context) {
-	translate := ctx.Values().Get(g.TranslateKey).(i18n_interfaces.TranslatorI)
+	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 
 	defer func() {
 		errInterface := recover()
@@ -75,7 +75,7 @@ func Panic(ctx iris.Context) {
 				stack := string(debug.Stack())
 				g.Logger.Panic(errInterface, ctx.Request(), stack)
 				res := PanicResponse{
-					Message: translate.StatusCodes().InternalServerError(),
+					Message: translator.StatusCodes().InternalServerError(),
 					Code:    http.StatusInternalServerError,
 					Errors:  nil,
 				}

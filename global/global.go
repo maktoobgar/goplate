@@ -44,7 +44,7 @@ const (
 	TokenId      = "TokenId"
 
 	// Url
-	TranslateKey = "translate"
+	TranslatorKey = "translator"
 
 	// Context
 	WriterLock   = "WriterLock"

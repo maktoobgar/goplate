@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"service/app"
 	g "service/global"
 	"service/pkg/colors"
+	"service/pkg/repositories"
 	"service/pkg/translator"
 )
 
@@ -34,6 +36,9 @@ func main() {
 		case "demigrate":
 			app.DemigrateOneChange()
 			fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sDemigration Finished Successfully%s==%s\n", colors.Green, colors.Cyan, colors.Reset))
+		case "sqlc":
+			repositories.GenerateRepositories(filepath.Join(g.CFG.PWD, "repositories"))
+			fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sRepositories Generated Successfully%s==%s\n", colors.Green, colors.Cyan, colors.Reset))
 		default:
 			flag.Usage()
 			os.Exit(1)

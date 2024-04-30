@@ -10,8 +10,8 @@ import (
 )
 
 func Hello(ctx iris.Context) {
-	translate := ctx.Values().Get(g.TranslateKey).(i18n_interfaces.TranslatorI)
+	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	utils.SendJson(ctx, map[string]string{
-		"message": translate.HelloWorld() + " 🥳",
+		"message": translator.HelloWorld() + " 🥳",
 	})
 }

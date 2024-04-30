@@ -4,5 +4,5 @@ ADD CONSTRAINT "users_groups_group_id_fk"
 FOREIGN KEY("group_id") REFERENCES "groups"("id")
 ON UPDATE NO ACTION ON DELETE CASCADE;
 -- +migrate Down
-ALTER TABLE "tokens"
+ALTER TABLE "users_groups"
 DROP CONSTRAINT "users_groups_group_id_fk";

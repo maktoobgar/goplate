@@ -1,8 +1,8 @@
 -- +migrate Up
 CREATE TABLE "users" (
-	"id" serial NOT NULL,
-	"phone_number" varchar(16) NOT NULL,
-	"email" varchar(64),
+	"id" serial NOT NULL UNIQUE,
+	"phone_number" varchar(16) NOT NULL UNIQUE,
+	"email" varchar(64) UNIQUE,
 	"password" varchar(256) NOT NULL,
 	"profile" varchar(256),
 	"first_name" varchar(128),

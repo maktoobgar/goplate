@@ -15,7 +15,7 @@ func StructCheck(input any) {
 	panic(errors.New("copy strcuc check: input type is not a pointer to a struct"))
 }
 
-func Copy(to, from any) any {
+func Copy[T, T2 any](to *T, from *T2) T {
 	StructCheck(to)
 	StructCheck(from)
 
@@ -23,28 +23,43 @@ func Copy(to, from any) any {
 	toValue := reflect.ValueOf(to).Elem()
 	for _, field := range reflect.VisibleFields(fromValue.Type()) {
 		if field.IsExported() {
-			fieldValue := toValue.FieldByName(field.Name)
-			fromFielValue := fromValue.FieldByName(field.Name)
-			for fromFielValue.Kind() == reflect.Ptr {
-				fromFielValue = fromFielValue.Elem()
+			toFieldValue := toValue.FieldByName(field.Name)
+			fromFieldValue := fromValue.FieldByName(field.Name)
+			for fromFieldValue.Kind() == reflect.Ptr {
+				fromFieldValue = fromFieldValue.Elem()
 			}
-			for fieldValue.Kind() == reflect.Ptr {
-				fieldValue = fieldValue.Elem()
+			for toFieldValue.Kind() == reflect.Ptr {
+				toFieldValue = toFieldValue.Elem()
 			}
-			if fieldValue.IsValid() {
-				if fromFielValue.Type().String() == "time.Time" && fieldValue.Kind() == reflect.Int64 {
-					t := fromFielValue.Interface().(time.Time)
-					fieldValue.Set(reflect.ValueOf(t.Unix()))
-				} else if fieldValue.Type().String() == "sql.NullString" && fromFielValue.Type().String() == "string" {
-					fieldValue.Set(reflect.ValueOf(sql.NullString{String: fromFielValue.String(), Valid: len(fromFielValue.String()) > 0}))
-				} else if fromFielValue.Kind() == reflect.Int64 && fieldValue.Type().String() == "time.Time" {
-					fieldValue.Set(reflect.ValueOf(time.Unix(fromFielValue.Int(), 0)))
+			if !toFieldValue.IsValid() {
+				continue
+			}
+			toFieldValueType := toFieldValue.Type()
+			fromFieldValueType := fromFieldValue.Type()
+			if toFieldValue.IsValid() {
+				if fromFieldValueType.String() == "time.Time" && toFieldValue.Kind() == reflect.Int64 {
+					t := fromFieldValue.Interface().(time.Time)
+					toFieldValue.Set(reflect.ValueOf(t.Unix()))
+				} else if fromFieldValue.Kind() == reflect.Int64 && toFieldValueType.String() == "time.Time" {
+					toFieldValue.Set(reflect.ValueOf(time.Unix(fromFieldValue.Int(), 0)))
+				} else if toFieldValueType.String() == "sql.NullString" && fromFieldValueType.String() == "string" {
+					toFieldValue.Set(reflect.ValueOf(sql.NullString{String: fromFieldValue.String(), Valid: len(fromFieldValue.String()) > 0}))
+				} else if toFieldValueType.String() == "sql.NullInt32" && fromFieldValueType.String() == "int32" {
+					toFieldValue.Set(reflect.ValueOf(sql.NullInt32{Int32: int32(fromFieldValue.Int()), Valid: fromFieldValue.Int() != 0}))
+				} else if toFieldValueType.String() == "sql.NullTime" && fromFieldValueType.String() == "time.Time" {
+					toFieldValue.Set(reflect.ValueOf(sql.NullTime{Time: fromFieldValue.Interface().(time.Time), Valid: !fromFieldValue.Interface().(time.Time).IsZero()}))
+				} else if fromFieldValueType.String() == "sql.NullString" && toFieldValueType.String() == "string" {
+					toFieldValue.Set(reflect.ValueOf(fromFieldValue.Interface().(sql.NullString).String))
+				} else if fromFieldValueType.String() == "sql.NullInt32" && toFieldValueType.String() == "int32" {
+					toFieldValue.Set(reflect.ValueOf(fromFieldValue.Interface().(sql.NullInt32).Int32))
+				} else if fromFieldValueType.String() == "sql.NullTime" && toFieldValueType.String() == "time.Time" {
+					toFieldValue.Set(reflect.ValueOf(fromFieldValue.Interface().(sql.NullTime).Time))
 				} else {
-					fieldValue.Set(fromFielValue)
+					toFieldValue.Set(fromFieldValue)
 				}
 			}
 		}
 	}
 
-	return toValue.Interface()
+	return toValue.Interface().(T)
 }
