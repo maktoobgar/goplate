@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: added login with phone and login with email address
 - 🐛 fix: bug fix on translator and query generation
 - 🎉 feat: repositories generator added
 - 🎉 feat: added sqlc to the repositories

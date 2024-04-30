@@ -3,9 +3,18 @@ package i18n_interfaces
 import "reflect"
 
 type TranslatorI interface {
+	Auth() TranslatorAuthI
 	Galidator() TranslatorGalidatorI
 	HelloWorld() string
 	StatusCodes() TranslatorStatusCodesI
+	Translate(key string, optionalInputs ...[]any) string
+}
+
+type TranslatorAuthI interface {
+	UserWithEmailNotFound() string
+	UserWithPhoneNumberNotFound() string
+	WrongPasswordWithEmailPassword() string
+	WrongPasswordWithPhoneNumberPassword() string
 	Translate(key string, optionalInputs ...[]any) string
 }
 

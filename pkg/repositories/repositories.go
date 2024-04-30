@@ -46,7 +46,7 @@ func GenerateRepositories(address string) {
 	defer file.Close()
 
 	// Error panic before return statement
-	output = strings.ReplaceAll(output, ")\n\treturn i, err", ")\n\tif err != nil {\n\t\tpanic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))\n\t}\n\treturn i, err")
+	output = strings.ReplaceAll(output, ")\n\treturn i, err", ")\n\tif err != nil && err != sql.ErrNoRows {\n\t\tpanic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))\n\t}\n\treturn i, err")
 
 	// Add translator to the start of it
 	output = strings.ReplaceAll(output, "{\n\trow", "{\n\ttranslator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)\n\trow")

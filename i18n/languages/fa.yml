@@ -9,4 +9,10 @@ Galidator:
   MaxLength: "حداکثر باید دارای طول $max کاراکتر باشد"
   Phone: "شماره تماس ارسالی معتبر نمیباشد"
 
+Auth:
+  UserWithPhoneNumberNotFound: "کاربری با شماره تماس وارده یافت نشد"
+  WrongPasswordWithPhoneNumberPassword: "شماره تماس یا پسورد وارد شده صحیح نمیباشد"
+  UserWithEmailNotFound: "کاربری با ایمیل وارده یافت نشد"
+  WrongPasswordWithEmailPassword: "ایمیل یا پسورد وارد شده صحیح نمیباشد"
+
 HelloWorld: "درود"

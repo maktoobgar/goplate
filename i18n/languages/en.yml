@@ -9,4 +9,10 @@ Galidator:
   MaxLength: "must be at most $max characters in length"
   Phone: "sent phone number is not valid"
 
+Auth:
+  UserWithPhoneNumberNotFound: "no user found with provided phone number"
+  WrongPasswordWithPhoneNumberPassword: "provided phone number or password is not correct"
+  UserWithEmailNotFound: "no user found with provided email"
+  WrongPasswordWithEmailPassword: "provided email or password is not correct"
+
 HelloWorld: "Hello World"

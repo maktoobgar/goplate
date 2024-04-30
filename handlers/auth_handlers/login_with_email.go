@@ -12,30 +12,30 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
-type LoginWithPhoneReq struct {
-	Username string `json:"username" g:"required,phone"`
+type LoginWithEmailReq struct {
+	Username string `json:"username" g:"required,email"`
 	Password string `json:"password" g:"required"`
 }
 
-type LoginWithPhoneRes struct {
+type LoginWithEmailRes struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
 
-var LoginWithPhoneValidator = g.Galidator.Validator(LoginWithPhoneReq{})
+var LoginWithEmailValidator = g.Galidator.Validator(LoginWithEmailReq{})
 
-func LoginWithPhone(ctx iris.Context) {
+func LoginWithEmail(ctx iris.Context) {
 	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
-	req := ctx.Values().Get(g.RequestBody).(*LoginWithPhoneReq)
+	req := ctx.Values().Get(g.RequestBody).(*LoginWithEmailReq)
 	db := ctx.Values().Get(g.DbInstance).(*sql.DB)
 
-	user, err := repositories.New(db).LoginUserWithPhoneNumber(ctx, req.Username)
+	user, err := repositories.New(db).LoginUserWithEmail(ctx, sql.NullString{String: req.Username, Valid: true})
 	if err != nil && err == sql.ErrNoRows {
-		panic(errors.New(errors.InvalidStatus, translator.Auth().UserWithPhoneNumberNotFound(), err.Error()))
+		panic(errors.New(errors.InvalidStatus, translator.Auth().UserWithEmailNotFound(), err.Error()))
 	}
 
 	if !user.IsSamePassword(req.Password) {
-		panic(errors.New(errors.InvalidStatus, translator.Auth().WrongPasswordWithPhoneNumberPassword(), "Password doesn't match with account"))
+		panic(errors.New(errors.InvalidStatus, translator.Auth().WrongPasswordWithEmailPassword(), "Password doesn't match with account"))
 	}
 
 	accessToken := user.GenerateToken()

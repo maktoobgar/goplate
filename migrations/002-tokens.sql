@@ -5,7 +5,7 @@ CREATE TABLE "tokens" (
 	"is_refresh_token" boolean NOT NULL DEFAULT FALSE,
 	"user_id" int NOT NULL,
 	"expires_at" TIMESTAMPTZ NOT NULL,
-	"created_at" TIMESTAMPTZ,
+	"created_at" TIMESTAMPTZ NOT NULL,
 	PRIMARY KEY("id")
 );
 -- +migrate Down

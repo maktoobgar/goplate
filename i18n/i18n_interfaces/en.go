@@ -2,6 +2,10 @@ package i18n_interfaces
 
 type TranslatorEn struct{}
 
+func (t *TranslatorEn) Auth() TranslatorAuthI {
+	return &TranslatorEnAuth{}
+}
+
 func (t *TranslatorEn) Galidator() TranslatorGalidatorI {
 	return &TranslatorEnGalidator{}
 }
@@ -15,6 +19,32 @@ func (t *TranslatorEn) StatusCodes() TranslatorStatusCodesI {
 }
 
 func (t *TranslatorEn) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
+}
+
+type TranslatorEnAuth struct{}
+
+func (t *TranslatorEnAuth) UserWithEmailNotFound() string {
+	return "no user found with provided email"
+}
+
+func (t *TranslatorEnAuth) UserWithPhoneNumberNotFound() string {
+	return "no user found with provided phone number"
+}
+
+func (t *TranslatorEnAuth) WrongPasswordWithEmailPassword() string {
+	return "provided email or password is not correct"
+}
+
+func (t *TranslatorEnAuth) WrongPasswordWithPhoneNumberPassword() string {
+	return "provided phone number or password is not correct"
+}
+
+func (t *TranslatorEnAuth) Translate(key string, optionalInputs ...[]any) string {
 	inputs := []any{}
 	if len(optionalInputs) > 0 {
 		inputs = optionalInputs[0]

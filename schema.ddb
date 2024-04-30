@@ -1,7 +1,7 @@
 {
   "author": "Unnamed",
-  "title": "Goplate",
-  "date": "2024-04-26T18:09:53.373Z",
+  "title": "Untitled Diagram",
+  "date": "2024-04-30T18:37:39.631Z",
   "tables": [
     {
       "id": 0,
@@ -40,7 +40,7 @@
           "default": "",
           "check": "",
           "primary": false,
-          "unique": false,
+          "unique": true,
           "notNull": false,
           "increment": false,
           "comment": "",
@@ -329,7 +329,7 @@
           "check": "",
           "primary": false,
           "unique": false,
-          "notNull": false,
+          "notNull": true,
           "increment": false,
           "comment": "",
           "id": 5,
@@ -529,7 +529,7 @@
           "check": "",
           "primary": false,
           "unique": false,
-          "notNull": false,
+          "notNull": true,
           "increment": false,
           "comment": "",
           "id": 3,
