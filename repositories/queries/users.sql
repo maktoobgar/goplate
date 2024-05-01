@@ -15,16 +15,8 @@ SELECT * FROM users WHERE phone_number = $1;
 -- name: LoginUserWithEmail :one
 SELECT * FROM users WHERE email = $1;
 
--- name: CreateToken :one
-INSERT INTO tokens (
-  user_id, created_at
-) VALUES (
-  @user_id, @created_at
-)
-RETURNING *;
-
--- name: GetToken :one
-SELECT * FROM tokens WHERE id = $1;
-
 -- name: GetUserWithTokenId :one
 SELECT u.* FROM users u JOIN tokens t ON u.id = t.user_id WHERE t.id = $1;
+
+-- name: UpdateMe :one
+UPDATE users SET first_name = $1, last_name = $2, display_name = $3, gender = $4 WHERE id = $5 RETURNING *;

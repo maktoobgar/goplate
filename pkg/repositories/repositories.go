@@ -34,41 +34,59 @@ func GenerateRepositories(address string) {
 
 	{ // query.sql.go file
 		// Read query.sql.go file
-		queriesAddress := filepath.Join(address, "query.sql.go")
-		content, err := os.ReadFile(queriesAddress)
+		dir, err := os.Open(address)
 		if err != nil {
-			log.Fatalf("repositories: can't read file '%s', err: %v", queriesAddress, err)
+			log.Fatalf("repositories: can't open folder '%s', err: %v", address, err)
 		}
-
-		// Import adding part
-		re, _ := regexp.Compile(`import\s*\((\s*((\w+ \"(\w|\/)*\")|(\"(\w|\/)*\")))+\s*\)`)
-		importContent := strings.Replace(re.FindString(string(content)), ")", "", 1)
-		if !strings.Contains(importContent, "\"service/pkg/errors\"") {
-			importContent += "\t\"service/pkg/errors\"\n"
-		}
-		if !strings.Contains(importContent, "\"service/global\"") {
-			importContent += "\t\"service/global\"\n"
-		}
-		if !strings.Contains(importContent, "\"service/i18n/i18n_interfaces\"") {
-			importContent += "\t\"service/i18n/i18n_interfaces\"\n"
-		}
-		importContent += ")"
-		output := re.ReplaceAllString(string(content), importContent)
-		file, err := os.Create(queriesAddress)
+		defer dir.Close()
+		files, err := dir.Readdir(-1)
 		if err != nil {
-			log.Fatalf("repositories: error opening file '%s', err: %s\n", queriesAddress, err)
+			log.Fatalf("repositories: can't read folder content '%s', err: %v", address, err)
 		}
-		defer file.Close()
+		// Iterate over all files which has generated queries and mutate their functions
+		for _, file := range files {
+			if !strings.HasSuffix(file.Name(), ".sql.go") {
+				continue
+			}
+			queriesAddress := filepath.Join(address, file.Name())
+			content, err := os.ReadFile(queriesAddress)
+			if err != nil {
+				log.Fatalf("repositories: can't read file '%s', err: %v", queriesAddress, err)
+			}
 
-		// Error panic before return statement
-		output = strings.ReplaceAll(output, ")\n\treturn i, err", ")\n\tif err != nil && err != sql.ErrNoRows {\n\t\tpanic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))\n\t}\n\treturn i, err")
+			// Import adding part
+			re, _ := regexp.Compile(`import\s*\((\s*((\w+ \"(\w|\/)*\")|(\"(\w|\/)*\")))+\s*\)`)
+			importContent := strings.Replace(re.FindString(string(content)), ")", "", 1)
+			if !strings.Contains(importContent, "\"service/pkg/errors\"") {
+				importContent += "\t\"service/pkg/errors\"\n"
+			}
+			if !strings.Contains(importContent, "\"service/global\"") {
+				importContent += "\t\"service/global\"\n"
+			}
+			if !strings.Contains(importContent, "\"service/i18n/i18n_interfaces\"") {
+				importContent += "\t\"service/i18n/i18n_interfaces\"\n"
+			}
+			if !strings.Contains(importContent, "\"database/sql\"") {
+				importContent += "\t\"database/sql\"\n"
+			}
+			importContent += ")"
+			output := re.ReplaceAllString(string(content), importContent)
+			file, err := os.Create(queriesAddress)
+			if err != nil {
+				log.Fatalf("repositories: error opening file '%s', err: %s\n", queriesAddress, err)
+			}
+			defer file.Close()
 
-		// Add translator to the start of it
-		output = strings.ReplaceAll(output, "{\n\trow", "{\n\ttranslator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)\n\trow")
+			// Error panic before return statement
+			output = strings.ReplaceAll(output, ")\n\treturn i, err", ")\n\tif err != nil && err != sql.ErrNoRows {\n\t\tpanic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))\n\t}\n\treturn i, err")
 
-		_, err = file.WriteString(output)
-		if err != nil {
-			log.Fatalf("repositories: failed to write to file '%s', err: %s\n", queriesAddress, err)
+			// Add translator to the start of it
+			output = strings.ReplaceAll(output, "{\n\trow", "{\n\ttranslator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)\n\trow")
+
+			_, err = file.WriteString(output)
+			if err != nil {
+				log.Fatalf("repositories: failed to write to file '%s', err: %s\n", queriesAddress, err)
+			}
 		}
 	}
 

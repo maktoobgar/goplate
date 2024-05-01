@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: added patch operation
 - 🎉 feat: handler generation added
 - 🎉 feat: added Me route and expanded repositories generation part
 - 🎉 feat: added login with phone and login with email address

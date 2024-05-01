@@ -31,7 +31,7 @@ func Copy[T, T2 any](to *T, from *T2) T {
 			for toFieldValue.Kind() == reflect.Ptr {
 				toFieldValue = toFieldValue.Elem()
 			}
-			if !toFieldValue.IsValid() {
+			if !toFieldValue.IsValid() || !fromFieldValue.IsValid() {
 				continue
 			}
 			toFieldValueType := toFieldValue.Type()

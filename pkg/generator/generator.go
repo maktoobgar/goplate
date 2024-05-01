@@ -23,14 +23,18 @@ import (
 type %sReq struct {
 }
 
+type %sRes struct {
+}
+
 var %sValidator = g.Galidator.Validator(%sReq{})
 
 func %s(ctx iris.Context) {
 	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
-	user := ctx.Value(g.UserKey).(*repositories.User)
+	user := *ctx.Value(g.UserKey).(*repositories.User)
 	req := ctx.Values().Get(g.RequestBody).(*%sReq)
 	db := ctx.Values().Get(g.DbInstance).(*sql.DB)
-	_, _, _, _ = db, req, user, translator
+	queries := repositories.New(db)
+	_, _, _, _, _ = db, req, user, translator, queries
 }
 `
 
@@ -49,7 +53,7 @@ func GenerateNewHandler(name, packageName, address string) {
 
 	name = strings.PascalCase(name)
 	packageName = strings.SnakeCase(packageName)
-	content := fmt.Sprintf(handlerStructure, packageName, name, name, name, name, name)
+	content := fmt.Sprintf(handlerStructure, packageName, name, name, name, name, name, name)
 
 	file, err := os.Create(fileAddress)
 	if err != nil {

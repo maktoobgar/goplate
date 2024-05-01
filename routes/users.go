@@ -13,6 +13,9 @@ func UsersHTTP(app router.Party) {
 
 	api.Get("/me", users_handlers.Me)
 
-	// updateMeValidator := middlewares.Validate(auth_handlers.UpdateMe, auth_handlers.UpdateMeReq{})
-	// api.Put("/me", updateMeValidator, users_handlers.UpdateMe)
+	updateMeValidator := middlewares.Validate(users_handlers.UpdateMeValidator, users_handlers.UpdateMeReq{})
+	api.Put("/me", updateMeValidator, users_handlers.UpdateMe)
+
+	updateMePatchValidator := middlewares.Validate(users_handlers.UpdateMePatchValidator, users_handlers.UpdateMePatchReq{})
+	api.Patch("/me", updateMePatchValidator, users_handlers.UpdateMePatch)
 }
