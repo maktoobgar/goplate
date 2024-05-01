@@ -14,5 +14,9 @@ Auth:
   WrongPasswordWithPhoneNumberPassword: "شماره تماس یا پسورد وارد شده صحیح نمیباشد"
   UserWithEmailNotFound: "کاربری با ایمیل وارده یافت نشد"
   WrongPasswordWithEmailPassword: "ایمیل یا پسورد وارد شده صحیح نمیباشد"
+  Unauthorized: "احراز هویت نشده"
+
+Users:
+  UserNotFound: "کاربر یافت نشد"
 
 HelloWorld: "درود"

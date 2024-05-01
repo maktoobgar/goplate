@@ -18,6 +18,7 @@ func API() {
 	g.App = app
 	apiRouter := routes.HTTP(app)
 	routes.AuthHTTP(apiRouter)
+	routes.UsersHTTP(apiRouter)
 
 	runCronJobs()
 

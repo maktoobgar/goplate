@@ -8,6 +8,7 @@ const (
 )
 
 type Claims struct {
+	Id            int32
 	UserId        int32
 	Type          string
 	AccessTokenId int32

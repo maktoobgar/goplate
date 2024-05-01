@@ -16,13 +16,10 @@ func NewUser[T any](instance *T) User {
 	return user
 }
 
-func NewToken(content string, refreshToken bool, userId int32, expiresAt time.Time) Token {
+func NewToken(userId int32) Token {
 	token := Token{
-		Token:          content,
-		IsRefreshToken: refreshToken,
-		UserID:         userId,
-		ExpiresAt:      expiresAt,
-		CreatedAt:      time.Now(),
+		UserID:    userId,
+		CreatedAt: time.Now(),
 	}
 	return token
 }

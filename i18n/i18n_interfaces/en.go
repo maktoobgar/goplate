@@ -18,6 +18,10 @@ func (t *TranslatorEn) StatusCodes() TranslatorStatusCodesI {
 	return &TranslatorEnStatusCodes{}
 }
 
+func (t *TranslatorEn) Users() TranslatorUsersI {
+	return &TranslatorEnUsers{}
+}
+
 func (t *TranslatorEn) Translate(key string, optionalInputs ...[]any) string {
 	inputs := []any{}
 	if len(optionalInputs) > 0 {
@@ -27,6 +31,10 @@ func (t *TranslatorEn) Translate(key string, optionalInputs ...[]any) string {
 }
 
 type TranslatorEnAuth struct{}
+
+func (t *TranslatorEnAuth) Unauthorized() string {
+	return "unauthorized"
+}
 
 func (t *TranslatorEnAuth) UserWithEmailNotFound() string {
 	return "no user found with provided email"
@@ -93,6 +101,20 @@ func (t *TranslatorEnStatusCodes) PageNotFound() string {
 }
 
 func (t *TranslatorEnStatusCodes) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
+}
+
+type TranslatorEnUsers struct{}
+
+func (t *TranslatorEnUsers) UserNotFound() string {
+	return "user not found"
+}
+
+func (t *TranslatorEnUsers) Translate(key string, optionalInputs ...[]any) string {
 	inputs := []any{}
 	if len(optionalInputs) > 0 {
 		inputs = optionalInputs[0]

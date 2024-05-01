@@ -18,6 +18,10 @@ func (t *Translator) StatusCodes() TranslatorStatusCodesI {
 	return &TranslatorStatusCodes{}
 }
 
+func (t *Translator) Users() TranslatorUsersI {
+	return &TranslatorUsers{}
+}
+
 func (t *Translator) Translate(key string, optionalInputs ...[]any) string {
 	inputs := []any{}
 	if len(optionalInputs) > 0 {
@@ -27,6 +31,10 @@ func (t *Translator) Translate(key string, optionalInputs ...[]any) string {
 }
 
 type TranslatorAuth struct{}
+
+func (t *TranslatorAuth) Unauthorized() string {
+	return "احراز هویت نشده"
+}
 
 func (t *TranslatorAuth) UserWithEmailNotFound() string {
 	return "کاربری با ایمیل وارده یافت نشد"
@@ -93,6 +101,20 @@ func (t *TranslatorStatusCodes) PageNotFound() string {
 }
 
 func (t *TranslatorStatusCodes) Translate(key string, optionalInputs ...[]any) string {
+	inputs := []any{}
+	if len(optionalInputs) > 0 {
+		inputs = optionalInputs[0]
+	}
+	return translate(t, key, inputs)
+}
+
+type TranslatorUsers struct{}
+
+func (t *TranslatorUsers) UserNotFound() string {
+	return "کاربر یافت نشد"
+}
+
+func (t *TranslatorUsers) Translate(key string, optionalInputs ...[]any) string {
 	inputs := []any{}
 	if len(optionalInputs) > 0 {
 		inputs = optionalInputs[0]

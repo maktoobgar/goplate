@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	g "service/global"
 	"service/i18n/i18n_interfaces"
-	"service/pkg/copier"
 	"service/pkg/errors"
 	"service/repositories"
 	"service/utils"
@@ -38,10 +37,9 @@ func LoginWithPhone(ctx iris.Context) {
 		panic(errors.New(errors.InvalidStatus, translator.Auth().WrongPasswordWithPhoneNumberPassword(), "Password doesn't match with account"))
 	}
 
-	accessToken := user.GenerateToken()
-	refreshToken := user.GenerateToken(true)
-	accessToken, _ = repositories.New(db).CreateAccessToken(ctx, copier.Copy(&repositories.CreateAccessTokenParams{}, &accessToken))
-	refreshToken, _ = repositories.New(db).CreateAccessToken(ctx, copier.Copy(&repositories.CreateAccessTokenParams{}, &refreshToken))
+	accessTokenObject, accessToken := user.GenerateAccessToken(ctx, db)
 
-	utils.SendJson(ctx, LoginWithPhoneRes{AccessToken: accessToken.Token, RefreshToken: refreshToken.Token})
+	_, refreshToken := user.GenerateRefreshToken(ctx, db, accessTokenObject.ID)
+
+	utils.SendJson(ctx, LoginWithPhoneRes{AccessToken: accessToken, RefreshToken: refreshToken})
 }

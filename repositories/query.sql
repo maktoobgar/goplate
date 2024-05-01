@@ -15,18 +15,16 @@ SELECT * FROM users WHERE phone_number = $1;
 -- name: LoginUserWithEmail :one
 SELECT * FROM users WHERE email = $1;
 
--- name: CreateAccessToken :one
+-- name: CreateToken :one
 INSERT INTO tokens (
-  token, is_refresh_token, user_id, expires_at, created_at
+  user_id, created_at
 ) VALUES (
-  @token, FALSE, @user_id, @expires_at, @created_at
+  @user_id, @created_at
 )
 RETURNING *;
 
--- name: CreateRefreshToken :one
-INSERT INTO tokens (
-  token, is_refresh_token, user_id, expires_at, created_at
-) VALUES (
-  @token, TRUE, @user_id, @expires_at, @created_at
-)
-RETURNING *;
+-- name: GetToken :one
+SELECT * FROM tokens WHERE id = $1;
+
+-- name: GetUserWithTokenId :one
+SELECT u.* FROM users u JOIN tokens t ON u.id = t.user_id WHERE t.id = $1;

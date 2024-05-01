@@ -14,5 +14,9 @@ Auth:
   WrongPasswordWithPhoneNumberPassword: "provided phone number or password is not correct"
   UserWithEmailNotFound: "no user found with provided email"
   WrongPasswordWithEmailPassword: "provided email or password is not correct"
+  Unauthorized: "unauthorized"
+
+Users:
+  UserNotFound: "user not found"
 
 HelloWorld: "Hello World"

@@ -9,75 +9,48 @@ import (
 	"context"
 	"database/sql"
 	"time"
+	"service/pkg/errors"
+	"service/global"
+	"service/i18n/i18n_interfaces"
 )
 
-const createAccessToken = `-- name: CreateAccessToken :one
+const createToken = `-- name: CreateToken :one
 INSERT INTO tokens (
-  token, is_refresh_token, user_id, expires_at, created_at
+  user_id, created_at
 ) VALUES (
-  $1, FALSE, $2, $3, $4
+  $1, $2
 )
-RETURNING id, token, is_refresh_token, user_id, expires_at, created_at
+RETURNING id, user_id, created_at
 `
 
-type CreateAccessTokenParams struct {
-	Token     string    `json:"token"`
+type CreateTokenParams struct {
 	UserID    int32     `json:"user_id"`
-	ExpiresAt time.Time `json:"expires_at"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func (q *Queries) CreateAccessToken(ctx context.Context, arg CreateAccessTokenParams) (Token, error) {
-	row := q.db.QueryRowContext(ctx, createAccessToken,
-		arg.Token,
-		arg.UserID,
-		arg.ExpiresAt,
-		arg.CreatedAt,
-	)
+func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, createToken, arg.UserID, arg.CreatedAt)
 	var i Token
-	err := row.Scan(
-		&i.ID,
-		&i.Token,
-		&i.IsRefreshToken,
-		&i.UserID,
-		&i.ExpiresAt,
-		&i.CreatedAt,
-	)
+	err := row.Scan(&i.ID, &i.UserID, &i.CreatedAt)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
 	return i, err
 }
 
-const createRefreshToken = `-- name: CreateRefreshToken :one
-INSERT INTO tokens (
-  token, is_refresh_token, user_id, expires_at, created_at
-) VALUES (
-  $1, TRUE, $2, $3, $4
-)
-RETURNING id, token, is_refresh_token, user_id, expires_at, created_at
+const getToken = `-- name: GetToken :one
+SELECT id, user_id, created_at FROM tokens WHERE id = $1
 `
 
-type CreateRefreshTokenParams struct {
-	Token     string    `json:"token"`
-	UserID    int32     `json:"user_id"`
-	ExpiresAt time.Time `json:"expires_at"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (Token, error) {
-	row := q.db.QueryRowContext(ctx, createRefreshToken,
-		arg.Token,
-		arg.UserID,
-		arg.ExpiresAt,
-		arg.CreatedAt,
-	)
+func (q *Queries) GetToken(ctx context.Context, id int32) (Token, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, getToken, id)
 	var i Token
-	err := row.Scan(
-		&i.ID,
-		&i.Token,
-		&i.IsRefreshToken,
-		&i.UserID,
-		&i.ExpiresAt,
-		&i.CreatedAt,
-	)
+	err := row.Scan(&i.ID, &i.UserID, &i.CreatedAt)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
 	return i, err
 }
 
@@ -86,6 +59,7 @@ SELECT id, phone_number, email, password, profile, first_name, last_name, displa
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, getUserById, id)
 	var i User
 	err := row.Scan(
@@ -108,6 +82,43 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	return i, err
+}
+
+const getUserWithTokenId = `-- name: GetUserWithTokenId :one
+SELECT u.id, u.phone_number, u.email, u.password, u.profile, u.first_name, u.last_name, u.display_name, u.gender, u.is_active, u.registered, u.deactivation_reason, u.is_admin, u.otp_remaining_attempts, u.otp_code, u.otp_due_date, u.is_superuser, u.created_at FROM users u JOIN tokens t ON u.id = t.user_id WHERE t.id = $1
+`
+
+func (q *Queries) GetUserWithTokenId(ctx context.Context, id int32) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, getUserWithTokenId, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.Email,
+		&i.Password,
+		&i.Profile,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.OtpRemainingAttempts,
+		&i.OtpCode,
+		&i.OtpDueDate,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
 	return i, err
 }
 
@@ -116,6 +127,7 @@ SELECT id, phone_number, email, password, profile, first_name, last_name, displa
 `
 
 func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, loginUserWithEmail, email)
 	var i User
 	err := row.Scan(
@@ -138,6 +150,9 @@ func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) 
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
 	return i, err
 }
 
@@ -146,6 +161,7 @@ SELECT id, phone_number, email, password, profile, first_name, last_name, displa
 `
 
 func (q *Queries) LoginUserWithPhoneNumber(ctx context.Context, phoneNumber string) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, loginUserWithPhoneNumber, phoneNumber)
 	var i User
 	err := row.Scan(
@@ -168,6 +184,9 @@ func (q *Queries) LoginUserWithPhoneNumber(ctx context.Context, phoneNumber stri
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
 	return i, err
 }
 
@@ -189,6 +208,7 @@ type RegisterUserParams struct {
 }
 
 func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, registerUser,
 		arg.PhoneNumber,
 		arg.Email,
@@ -217,5 +237,8 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
 	return i, err
 }

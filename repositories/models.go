@@ -25,12 +25,9 @@ type Permission struct {
 }
 
 type Token struct {
-	ID             int32     `json:"id"`
-	Token          string    `json:"token"`
-	IsRefreshToken bool      `json:"is_refresh_token"`
-	UserID         int32     `json:"user_id"`
-	ExpiresAt      time.Time `json:"expires_at"`
-	CreatedAt      time.Time `json:"created_at"`
+	ID        int32     `json:"id"`
+	UserID    int32     `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type User struct {

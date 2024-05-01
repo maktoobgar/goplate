@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -218,4 +219,8 @@ func CastParams(params interface{}, ctx iris.Context, defaultValues ...interface
 			}
 		}
 	}
+}
+
+func IsErrorNotFound(err error) bool {
+	return err != nil && err == sql.ErrNoRows
 }

@@ -1,12 +1,15 @@
 package repositories
 
 import (
+	"database/sql"
 	"regexp"
 	g "service/global"
+	"service/pkg/copier"
 	"service/static_models"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/kataras/iris/v12"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -36,25 +39,35 @@ func (u *User) IsSamePassword(rawPassword string) bool {
 	return true
 }
 
-func (u *User) GenerateToken(refreshToken ...bool) Token {
-	var isRefreshToken = false
-	if len(refreshToken) > 0 {
-		isRefreshToken = refreshToken[0]
-	}
+func (u *User) GenerateAccessToken(ctx iris.Context, db *sql.DB) (Token, string) {
+	token := NewToken(u.ID)
+	token, _ = New(db).CreateToken(ctx, copier.Copy(&CreateTokenParams{}, &token))
 
-	var period = g.CFG.AccessTokenLifePeriod
-	if isRefreshToken {
-		period = g.CFG.RefreshTokenLifePeriod
-	}
-	expirationTime := time.Now().Add(time.Duration(period) * (time.Hour * 24))
-
-	var tokenType = static_models.AccessTokenType
-	if isRefreshToken {
-		tokenType = static_models.RefreshTokenType
-	}
+	expirationTime := time.Now().Add(time.Duration(g.CFG.AccessTokenLifePeriod) * (time.Hour * 24))
 	claims := &static_models.Claims{
+		Id:     token.ID,
 		UserId: u.ID,
-		Type:   tokenType,
+		Type:   static_models.AccessTokenType,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, _ := tkn.SignedString(g.SecretKeyBytes)
+
+	return token, tokenString
+}
+
+func (u *User) GenerateRefreshToken(ctx iris.Context, db *sql.DB, relatedAccessTokenId int32) (Token, string) {
+	token := NewToken(u.ID)
+	token, _ = New(db).CreateToken(ctx, copier.Copy(&CreateTokenParams{}, &token))
+
+	expirationTime := time.Now().Add(time.Duration(g.CFG.RefreshTokenLifePeriod) * (time.Hour * 24))
+	claims := &static_models.Claims{
+		Id:            token.ID,
+		UserId:        u.ID,
+		Type:          static_models.RefreshTokenType,
+		AccessTokenId: relatedAccessTokenId,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -63,5 +76,5 @@ func (u *User) GenerateToken(refreshToken ...bool) Token {
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, _ := tkn.SignedString(g.SecretKeyBytes)
 
-	return NewToken(tokenString, isRefreshToken, u.ID, expirationTime)
+	return token, tokenString
 }

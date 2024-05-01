@@ -1,7 +1,7 @@
 {
   "author": "Unnamed",
   "title": "Untitled Diagram",
-  "date": "2024-04-30T18:37:39.631Z",
+  "date": "2024-05-01T07:32:12.655Z",
   "tables": [
     {
       "id": 0,
@@ -309,20 +309,6 @@
           "id": 3
         },
         {
-          "name": "expires_at",
-          "type": "TIMESTAMP",
-          "default": "",
-          "check": "",
-          "primary": false,
-          "unique": false,
-          "notNull": true,
-          "increment": false,
-          "comment": "",
-          "id": 4,
-          "size": "",
-          "values": []
-        },
-        {
           "name": "created_at",
           "type": "TIMESTAMP",
           "default": "",
@@ -332,7 +318,7 @@
           "notNull": true,
           "increment": false,
           "comment": "",
-          "id": 5,
+          "id": 4,
           "size": "",
           "values": []
         }

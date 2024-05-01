@@ -7,10 +7,12 @@ type TranslatorI interface {
 	Galidator() TranslatorGalidatorI
 	HelloWorld() string
 	StatusCodes() TranslatorStatusCodesI
+	Users() TranslatorUsersI
 	Translate(key string, optionalInputs ...[]any) string
 }
 
 type TranslatorAuthI interface {
+	Unauthorized() string
 	UserWithEmailNotFound() string
 	UserWithPhoneNumberNotFound() string
 	WrongPasswordWithEmailPassword() string
@@ -30,6 +32,11 @@ type TranslatorStatusCodesI interface {
 	BodyNotProvidedProperly() string
 	InternalServerError() string
 	PageNotFound() string
+	Translate(key string, optionalInputs ...[]any) string
+}
+
+type TranslatorUsersI interface {
+	UserNotFound() string
 	Translate(key string, optionalInputs ...[]any) string
 }
 
