@@ -126,12 +126,16 @@ func initialCron() {
 	g.Cron.Start()
 }
 
-// Server initialization
-func init() {
-	setPwd()
-	initializeConfigs()
+// Gateway Server initialization
+func InitializeService() {
 	initialDBs()
 	initialLogger()
 	initialMedia()
 	initialCron()
+}
+
+// Server initialization
+func init() {
+	setPwd()
+	initializeConfigs()
 }

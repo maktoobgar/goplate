@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/core/router"
 	"github.com/rs/cors"
 )
 
@@ -41,7 +40,7 @@ func addBasicErrorRoutes(app *iris.Application) {
 	app.OnErrorCode(iris.StatusNotFound, extra_middlewares.Translator, extra_middlewares.Panic, error_handlers.NotFound)
 }
 
-func HTTP(app *iris.Application) router.Party {
+func HTTP(app *iris.Application) {
 	addBasicMiddlewares(app)
 	addBasicErrorRoutes(app)
 
@@ -63,5 +62,6 @@ func HTTP(app *iris.Application) router.Party {
 		api.Get("/", handlers.Hello)
 	}
 
-	return basicApi
+	AuthHTTP(basicApi)
+	UsersHTTP(basicApi)
 }

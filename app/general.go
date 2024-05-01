@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	"log"
 
 	g "service/global"
 	"service/pkg/colors"
@@ -16,7 +15,7 @@ func runCronJobs() {
 	// g.Cron.AddJob("* * * * *", extra_middlewares.IpRateLimitGarbageCollector)
 }
 
-func info() {
+func Info() {
 	fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sSystem Info%s==%s\n", colors.Yellow, colors.Cyan, colors.Reset))
 	fmt.Printf("Name:\t\t\t%s%s%s\n", colors.Blue, g.Name, colors.Reset)
 	fmt.Printf("Version:\t\t%s%s%s\n", colors.Blue, g.Version, colors.Reset)
@@ -31,9 +30,6 @@ func info() {
 		fmt.Printf("Main Database:\t\t%v, %v (%v)\n", g.CFG.Gateway.Database.Type, g.CFG.Gateway.Database.DbName, mainOrTestColor)
 	} else {
 		fmt.Printf("Main Database:\t\t%v, %v, %v:%v (%v)\n", g.CFG.Gateway.Database.Type, g.CFG.Gateway.Database.DbName, g.CFG.Gateway.Database.Host, g.CFG.Gateway.Database.Port, mainOrTestColor)
-	}
-	if g.DB == nil {
-		log.Fatal("default database connection is not assigned as main database")
 	}
 
 	if g.CFG.Debug {

@@ -12,4 +12,7 @@ func UsersHTTP(app router.Party) {
 	// usersApi := api.Party("/api")
 
 	api.Get("/me", users_handlers.Me)
+
+	// updateMeValidator := middlewares.Validate(auth_handlers.UpdateMe, auth_handlers.UpdateMeReq{})
+	// api.Put("/me", updateMeValidator, users_handlers.UpdateMe)
 }

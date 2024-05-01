@@ -8,17 +8,17 @@ import (
 )
 
 func API() {
+	// Initialize all
+	InitializeService()
 	// Print Info
-	info()
+	Info()
 
 	app := iris.New()
 	app.Configure(iris.WithoutStartupLog)
 
 	// Router Settings
 	g.App = app
-	apiRouter := routes.HTTP(app)
-	routes.AuthHTTP(apiRouter)
-	routes.UsersHTTP(apiRouter)
+	routes.HTTP(app)
 
 	runCronJobs()
 
