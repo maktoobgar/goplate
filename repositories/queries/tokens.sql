@@ -8,3 +8,6 @@ RETURNING *;
 
 -- name: GetToken :one
 SELECT * FROM tokens WHERE id = $1;
+
+-- name: DeleteToken :exec
+DELETE FROM tokens WHERE id = $1;

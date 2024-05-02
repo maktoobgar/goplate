@@ -39,6 +39,15 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token
 	return i, err
 }
 
+const deleteToken = `-- name: DeleteToken :exec
+DELETE FROM tokens WHERE id = $1
+`
+
+func (q *Queries) DeleteToken(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteToken, id)
+	return err
+}
+
 const getToken = `-- name: GetToken :one
 SELECT id, user_id, created_at FROM tokens WHERE id = $1
 `

@@ -32,6 +32,10 @@ func (t *TranslatorEn) Translate(key string, optionalInputs ...[]any) string {
 
 type TranslatorEnAuth struct{}
 
+func (t *TranslatorEnAuth) InvalidToken() string {
+	return "invalid token"
+}
+
 func (t *TranslatorEnAuth) Unauthorized() string {
 	return "unauthorized"
 }

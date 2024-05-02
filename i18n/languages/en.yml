@@ -15,6 +15,7 @@ Auth:
   UserWithEmailNotFound: "no user found with provided email"
   WrongPasswordWithEmailPassword: "provided email or password is not correct"
   Unauthorized: "unauthorized"
+  InvalidToken: "invalid token"
 
 Users:
   UserNotFound: "user not found"

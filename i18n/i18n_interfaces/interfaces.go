@@ -12,6 +12,7 @@ type TranslatorI interface {
 }
 
 type TranslatorAuthI interface {
+	InvalidToken() string
 	Unauthorized() string
 	UserWithEmailNotFound() string
 	UserWithPhoneNumberNotFound() string

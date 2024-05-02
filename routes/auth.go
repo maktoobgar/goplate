@@ -17,4 +17,6 @@ func AuthHTTP(app router.Party) {
 
 	loginWithEmailValidator := middlewares.Validate(auth_handlers.LoginWithEmailValidator, auth_handlers.LoginWithEmailReq{})
 	authApi.Post("/login_with_email", loginWithEmailValidator, auth_handlers.LoginWithEmail)
+
+	authApi.Post("/refresh_token", auth_handlers.RefreshToken)
 }

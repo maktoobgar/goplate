@@ -32,6 +32,10 @@ func (t *Translator) Translate(key string, optionalInputs ...[]any) string {
 
 type TranslatorAuth struct{}
 
+func (t *TranslatorAuth) InvalidToken() string {
+	return "توکن نامعتبر"
+}
+
 func (t *TranslatorAuth) Unauthorized() string {
 	return "احراز هویت نشده"
 }
