@@ -35,7 +35,7 @@ type User struct {
 	PhoneNumber          string         `json:"phone_number"`
 	Email                sql.NullString `json:"email"`
 	Password             string         `json:"password"`
-	Profile              sql.NullString `json:"profile"`
+	Avatar               sql.NullString `json:"avatar"`
 	FirstName            sql.NullString `json:"first_name"`
 	LastName             sql.NullString `json:"last_name"`
 	DisplayName          string         `json:"display_name"`

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/golodash/godash/strings"
 	"github.com/kataras/iris/v12"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -77,4 +78,12 @@ func (u *User) GenerateRefreshToken(ctx iris.Context, db *sql.DB, relatedAccessT
 	tokenString, _ := tkn.SignedString(g.SecretKeyBytes)
 
 	return token, tokenString
+}
+
+func (u *User) Reformat() {
+	if u.Avatar.Valid {
+		if !strings.StartsWith(u.Avatar.String, g.CFG.Domain) {
+			u.Avatar.String = g.CFG.Domain + u.Avatar.String
+		}
+	}
 }

@@ -14,8 +14,42 @@ import (
 	"service/i18n/i18n_interfaces"
 )
 
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at FROM users WHERE email = $1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.Email,
+		&i.Password,
+		&i.Avatar,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.OtpRemainingAttempts,
+		&i.OtpCode,
+		&i.OtpDueDate,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	return i, err
+}
+
 const getUserById = `-- name: GetUserById :one
-SELECT id, phone_number, email, password, profile, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at FROM users WHERE id = $1
+SELECT id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
@@ -27,7 +61,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 		&i.PhoneNumber,
 		&i.Email,
 		&i.Password,
-		&i.Profile,
+		&i.Avatar,
 		&i.FirstName,
 		&i.LastName,
 		&i.DisplayName,
@@ -49,7 +83,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 }
 
 const getUserWithTokenId = `-- name: GetUserWithTokenId :one
-SELECT u.id, u.phone_number, u.email, u.password, u.profile, u.first_name, u.last_name, u.display_name, u.gender, u.is_active, u.registered, u.deactivation_reason, u.is_admin, u.otp_remaining_attempts, u.otp_code, u.otp_due_date, u.is_superuser, u.created_at FROM users u JOIN tokens t ON u.id = t.user_id WHERE t.id = $1
+SELECT u.id, u.phone_number, u.email, u.password, u.avatar, u.first_name, u.last_name, u.display_name, u.gender, u.is_active, u.registered, u.deactivation_reason, u.is_admin, u.otp_remaining_attempts, u.otp_code, u.otp_due_date, u.is_superuser, u.created_at FROM users u JOIN tokens t ON u.id = t.user_id WHERE t.id = $1
 `
 
 func (q *Queries) GetUserWithTokenId(ctx context.Context, id int32) (User, error) {
@@ -61,7 +95,7 @@ func (q *Queries) GetUserWithTokenId(ctx context.Context, id int32) (User, error
 		&i.PhoneNumber,
 		&i.Email,
 		&i.Password,
-		&i.Profile,
+		&i.Avatar,
 		&i.FirstName,
 		&i.LastName,
 		&i.DisplayName,
@@ -83,7 +117,7 @@ func (q *Queries) GetUserWithTokenId(ctx context.Context, id int32) (User, error
 }
 
 const loginUserWithEmail = `-- name: LoginUserWithEmail :one
-SELECT id, phone_number, email, password, profile, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at FROM users WHERE email = $1
+SELECT id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at FROM users WHERE email = $1
 `
 
 func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) (User, error) {
@@ -95,7 +129,7 @@ func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) 
 		&i.PhoneNumber,
 		&i.Email,
 		&i.Password,
-		&i.Profile,
+		&i.Avatar,
 		&i.FirstName,
 		&i.LastName,
 		&i.DisplayName,
@@ -117,7 +151,7 @@ func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) 
 }
 
 const loginUserWithPhoneNumber = `-- name: LoginUserWithPhoneNumber :one
-SELECT id, phone_number, email, password, profile, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at FROM users WHERE phone_number = $1
+SELECT id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at FROM users WHERE phone_number = $1
 `
 
 func (q *Queries) LoginUserWithPhoneNumber(ctx context.Context, phoneNumber string) (User, error) {
@@ -129,7 +163,7 @@ func (q *Queries) LoginUserWithPhoneNumber(ctx context.Context, phoneNumber stri
 		&i.PhoneNumber,
 		&i.Email,
 		&i.Password,
-		&i.Profile,
+		&i.Avatar,
 		&i.FirstName,
 		&i.LastName,
 		&i.DisplayName,
@@ -156,7 +190,7 @@ INSERT INTO users (
 ) VALUES (
   $1, $2, $3, $4, $5
 )
-RETURNING id, phone_number, email, password, profile, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at
+RETURNING id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at
 `
 
 type RegisterUserParams struct {
@@ -182,7 +216,46 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 		&i.PhoneNumber,
 		&i.Email,
 		&i.Password,
-		&i.Profile,
+		&i.Avatar,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.OtpRemainingAttempts,
+		&i.OtpCode,
+		&i.OtpDueDate,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	return i, err
+}
+
+const updateAvatar = `-- name: UpdateAvatar :one
+UPDATE users SET avatar = $1 WHERE id = $2 RETURNING id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at
+`
+
+type UpdateAvatarParams struct {
+	Avatar sql.NullString `json:"avatar"`
+	ID     int32          `json:"id"`
+}
+
+func (q *Queries) UpdateAvatar(ctx context.Context, arg UpdateAvatarParams) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, updateAvatar, arg.Avatar, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.Email,
+		&i.Password,
+		&i.Avatar,
 		&i.FirstName,
 		&i.LastName,
 		&i.DisplayName,
@@ -204,7 +277,7 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 }
 
 const updateMe = `-- name: UpdateMe :one
-UPDATE users SET first_name = $1, last_name = $2, display_name = $3, gender = $4 WHERE id = $5 RETURNING id, phone_number, email, password, profile, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at
+UPDATE users SET first_name = $1, last_name = $2, display_name = $3, gender = $4 WHERE id = $5 RETURNING id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, otp_remaining_attempts, otp_code, otp_due_date, is_superuser, created_at
 `
 
 type UpdateMeParams struct {
@@ -230,7 +303,7 @@ func (q *Queries) UpdateMe(ctx context.Context, arg UpdateMeParams) (User, error
 		&i.PhoneNumber,
 		&i.Email,
 		&i.Password,
-		&i.Profile,
+		&i.Avatar,
 		&i.FirstName,
 		&i.LastName,
 		&i.DisplayName,

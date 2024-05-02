@@ -12,8 +12,8 @@ type group struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func (u *Group) MarshalJSON() ([]byte, error) {
-	return json.Marshal(copier.Copy(&group{}, u))
+func (u Group) MarshalJSON() ([]byte, error) {
+	return json.Marshal(copier.Copy(&group{}, &u))
 }
 
 type permission struct {
@@ -25,8 +25,8 @@ type permission struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-func (u *Permission) MarshalJSON() ([]byte, error) {
-	return json.Marshal(copier.Copy(&permission{}, u))
+func (u Permission) MarshalJSON() ([]byte, error) {
+	return json.Marshal(copier.Copy(&permission{}, &u))
 }
 
 type token struct {
@@ -35,8 +35,8 @@ type token struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func (u *Token) MarshalJSON() ([]byte, error) {
-	return json.Marshal(copier.Copy(&token{}, u))
+func (u Token) MarshalJSON() ([]byte, error) {
+	return json.Marshal(copier.Copy(&token{}, &u))
 }
 
 type user struct {
@@ -44,7 +44,7 @@ type user struct {
 	PhoneNumber          string    `json:"phone_number"`
 	Email                string    `json:"email"`
 	Password             string    `json:"password"`
-	Profile              string    `json:"profile"`
+	Avatar               string    `json:"avatar"`
 	FirstName            string    `json:"first_name"`
 	LastName             string    `json:"last_name"`
 	DisplayName          string    `json:"display_name"`
@@ -60,8 +60,8 @@ type user struct {
 	CreatedAt            time.Time `json:"created_at"`
 }
 
-func (u *User) MarshalJSON() ([]byte, error) {
-	return json.Marshal(copier.Copy(&user{}, u))
+func (u User) MarshalJSON() ([]byte, error) {
+	return json.Marshal(copier.Copy(&user{}, &u))
 }
 
 type usersGroup struct {
@@ -71,6 +71,6 @@ type usersGroup struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func (u *UsersGroup) MarshalJSON() ([]byte, error) {
-	return json.Marshal(copier.Copy(&usersGroup{}, u))
+func (u UsersGroup) MarshalJSON() ([]byte, error) {
+	return json.Marshal(copier.Copy(&usersGroup{}, &u))
 }

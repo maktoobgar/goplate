@@ -100,7 +100,7 @@ func GenerateRepositories(address string) {
 		// `type \w* struct {(\s|\d|\w|\:|\"|`|\.)*}`
 		re, _ := regexp.Compile(`type (\w*) struct {((\s|\d|\w|\:|\"|` + "`" + `|\.)*)}`)
 		const structureStringStructure = "\ntype %s struct {%s}\n%s"
-		const functionStructure = "\nfunc (u *%s) MarshalJSON() ([]byte, error) {\n\treturn json.Marshal(copier.Copy(&%s{}, u))\n}"
+		const functionStructure = "\nfunc (u %s) MarshalJSON() ([]byte, error) {\n\treturn json.Marshal(copier.Copy(&%s{}, &u))\n}"
 		structures := re.FindAllStringSubmatch(string(content), int(math.Inf(1)))
 		structuresString := ""
 		for i := range structures {

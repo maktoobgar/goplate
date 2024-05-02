@@ -118,7 +118,8 @@ func DemigrateOneChange() {
 }
 
 func initialMedia() {
-	g.Media = media_manager.NewMediaManager(cfg.Media, true)
+	g.Media = media_manager.NewMediaManager(cfg.Media, filepath.Join(cfg.PWD, cfg.Media), true)
+	g.UsersMedia, _ = g.Media.GoTo("users", true)
 }
 
 func initialCron() {

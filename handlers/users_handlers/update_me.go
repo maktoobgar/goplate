@@ -7,6 +7,7 @@ import (
 	"service/pkg/copier"
 	"service/repositories"
 	"service/utils"
+	"service/validators"
 
 	"github.com/golodash/galidator"
 	"github.com/kataras/iris/v12"
@@ -20,11 +21,11 @@ type UpdateMeReq struct {
 	Gender int32 `json:"gender" g:"choices=0,1,2"`
 }
 
-var UpdateMeValidator = g.Galidator.ComplexValidator(galidator.Rules{
-	"FirstName":   g.Galidator.R("first_name").Required(),
-	"LastName":    g.Galidator.R("last_name").Required(),
-	"DisplayName": g.Galidator.R("display_name").Required(),
-	"Gender":      g.Galidator.R("gender").Choices(int32(0), int32(1), int32(2)),
+var UpdateMeValidator = validators.Generator.ComplexValidator(galidator.Rules{
+	"FirstName":   validators.Generator.R("first_name").Required(),
+	"LastName":    validators.Generator.R("last_name").Required(),
+	"DisplayName": validators.Generator.R("display_name").Required(),
+	"Gender":      validators.Generator.R("gender").Choices(int32(0), int32(1), int32(2)),
 })
 
 func UpdateMe(ctx iris.Context) {

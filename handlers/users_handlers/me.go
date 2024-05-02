@@ -14,7 +14,7 @@ type MeRes struct {
 	ID          int32     `json:"id"`
 	PhoneNumber string    `json:"phone_number"`
 	Email       string    `json:"email"`
-	Profile     string    `json:"profile"`
+	Avatar      string    `json:"avatar"`
 	FirstName   string    `json:"first_name"`
 	LastName    string    `json:"last_name"`
 	DisplayName string    `json:"display_name"`

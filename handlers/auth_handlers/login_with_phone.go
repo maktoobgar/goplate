@@ -7,6 +7,7 @@ import (
 	"service/pkg/errors"
 	"service/repositories"
 	"service/utils"
+	"service/validators"
 
 	"github.com/kataras/iris/v12"
 )
@@ -21,7 +22,7 @@ type LoginWithPhoneRes struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-var LoginWithPhoneValidator = g.Galidator.Validator(LoginWithPhoneReq{})
+var LoginWithPhoneValidator = validators.Generator.Validator(LoginWithPhoneReq{})
 
 func LoginWithPhone(ctx iris.Context) {
 	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)

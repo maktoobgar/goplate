@@ -7,6 +7,7 @@ import (
 	"service/pkg/errors"
 	"service/repositories"
 	"service/utils"
+	"service/validators"
 
 	"github.com/kataras/iris/v12"
 )
@@ -21,7 +22,7 @@ type LoginWithEmailRes struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-var LoginWithEmailValidator = g.Galidator.Validator(LoginWithEmailReq{})
+var LoginWithEmailValidator = validators.Generator.Validator(LoginWithEmailReq{})
 
 func LoginWithEmail(ctx iris.Context) {
 	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)

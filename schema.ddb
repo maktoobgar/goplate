@@ -1,7 +1,7 @@
 {
   "author": "Unnamed",
   "title": "Untitled Diagram",
-  "date": "2024-05-01T07:32:12.655Z",
+  "date": "2024-05-02T10:12:21.736Z",
   "tables": [
     {
       "id": 0,
@@ -61,7 +61,7 @@
           "size": 256
         },
         {
-          "name": "profile",
+          "name": "avatar",
           "type": "VARCHAR",
           "default": "",
           "check": "",
@@ -270,33 +270,6 @@
           "id": 0
         },
         {
-          "name": "token",
-          "type": "VARCHAR",
-          "default": "",
-          "check": "",
-          "primary": false,
-          "unique": false,
-          "notNull": true,
-          "increment": false,
-          "comment": "",
-          "id": 1,
-          "size": 256
-        },
-        {
-          "name": "is_refresh_token",
-          "type": "BOOLEAN",
-          "default": "FALSE",
-          "check": "",
-          "primary": false,
-          "unique": false,
-          "notNull": true,
-          "increment": false,
-          "comment": "",
-          "id": 2,
-          "size": "",
-          "values": []
-        },
-        {
           "name": "user_id",
           "type": "INT",
           "default": "",
@@ -306,7 +279,7 @@
           "notNull": true,
           "increment": false,
           "comment": "",
-          "id": 3
+          "id": 1
         },
         {
           "name": "created_at",
@@ -318,7 +291,7 @@
           "notNull": true,
           "increment": false,
           "comment": "",
-          "id": 4,
+          "id": 2,
           "size": "",
           "values": []
         }
@@ -532,7 +505,7 @@
   "relationships": [
     {
       "startTableId": 1,
-      "startFieldId": 3,
+      "startFieldId": 1,
       "endTableId": 0,
       "endFieldId": 0,
       "cardinality": "Many to one",

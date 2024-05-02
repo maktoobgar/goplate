@@ -2,9 +2,6 @@ package media_manager
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
-	"mime/multipart"
 	"os"
 	"path/filepath"
 	"service/pkg/errors"
@@ -13,6 +10,8 @@ import (
 
 type mediaManager struct {
 	address string
+
+	absoluteBaseHostPath string
 }
 
 type MediaManager interface {
@@ -31,11 +30,11 @@ type MediaManager interface {
 	// Removes a folder, if not found, ignore
 	RemoveFolder(folderName ...string) MediaManager
 	// Creates a file, if exists, ignore
-	CreateFile(file multipart.File, fileName string) MediaManager
+	CreateFile(file []byte, fileName string) MediaManager
 	// Removes a file, if not found, ignore
 	RemoveFile(fileName string) MediaManager
 	// Removes existing file(if exist) and replaces the new one
-	OverwriteFile(file multipart.File, fileName string) MediaManager
+	OverwriteFile(file []byte, fileName string) MediaManager
 	// Returns true if passed address(file or folder) exists
 	Exists(name string) bool
 	// Returns true if passed filename with different extension exists
@@ -70,7 +69,7 @@ func (m *mediaManager) Exists(name string) bool {
 }
 
 func (m *mediaManager) FindFileWithJustName(name string) (string, bool) {
-	files, err := ioutil.ReadDir(m.address)
+	files, err := os.ReadDir(m.address)
 	if err != nil {
 		return "", false
 	}
@@ -91,23 +90,12 @@ func (m *mediaManager) FindFileWithJustName(name string) (string, bool) {
 	return "", false
 }
 
-func (m *mediaManager) TrimEnd(name string) string {
-	output, _ := strings.CutSuffix(name, "/")
-	return strings.TrimSpace(output)
-}
-
-func (m *mediaManager) TrimStart(name string) string {
-	output, _ := strings.CutPrefix(name, "/")
-	output, _ = strings.CutPrefix(output, "./")
-	return strings.TrimSpace(output)
-}
-
 func (m *mediaManager) JoinPaths(path1, path2 string) string {
-	return m.TrimEnd(path1) + "/" + m.TrimStart(path2)
+	return filepath.Join(path1, path2)
 }
 
 func (m *mediaManager) JoinPath(path string) string {
-	return m.address + "/" + m.TrimStart(path)
+	return filepath.Join(m.address, path)
 }
 
 func (m *mediaManager) AddressIsValid() {
@@ -125,14 +113,14 @@ func (m *mediaManager) GoBack() MediaManager {
 		}
 	}
 	if splitPlace > 0 {
-		return NewMediaManager(m.address[:splitPlace+1])
+		return NewMediaManager(m.address[:splitPlace+1], m.absoluteBaseHostPath)
 	}
 	return m
 }
 
 func (m *mediaManager) GoTo(folderName string, createPath ...bool) (MediaManager, bool) {
 	if m.Exists(m.JoinPath(folderName)) || (!m.Exists(m.JoinPath(folderName)) && len(createPath) > 0 && createPath[0]) {
-		return NewMediaManager(m.JoinPath(folderName), createPath...), true
+		return NewMediaManager(m.JoinPath(folderName), m.absoluteBaseHostPath, createPath...), true
 	}
 	return nil, false
 }
@@ -177,16 +165,16 @@ func (m *mediaManager) RemoveFolder(folderName ...string) MediaManager {
 	return m
 }
 
-func (m *mediaManager) CreateFile(file multipart.File, fileName string) MediaManager {
+func (m *mediaManager) CreateFile(file []byte, fileName string) MediaManager {
 	address := m.JoinPath(fileName)
 	if !m.Exists(address) {
-		outFile, err := os.OpenFile(address, os.O_WRONLY|os.O_CREATE, 0666)
+		outFile, err := os.Create(address)
 		if err != nil {
 			panic(fmt.Sprintf("media_manager: error on trying to record %s file, err: %s", fileName, err.Error()))
 		}
 		defer outFile.Close()
 
-		if _, err = io.Copy(outFile, file); err != nil {
+		if _, err = outFile.Write(file); err != nil {
 			panic(fmt.Sprintf("media_manager: error on trying to copy content of %s file into %s, err: %s", fileName, address, err.Error()))
 		}
 	}
@@ -204,7 +192,7 @@ func (m *mediaManager) RemoveFile(fileName string) MediaManager {
 	return m
 }
 
-func (m *mediaManager) OverwriteFile(file multipart.File, fileName string) MediaManager {
+func (m *mediaManager) OverwriteFile(file []byte, fileName string) MediaManager {
 	m.RemoveFile(fileName)
 	m.CreateFile(file, fileName)
 	return m
@@ -215,7 +203,7 @@ func (m *mediaManager) GetAddress() string {
 }
 
 func (m *mediaManager) GetHostAddress(filename string) string {
-	return m.TrimEnd(strings.Replace(m.address, m.GetAddress(), "", 1)) + "/" + filename
+	return filepath.Join(strings.Replace(m.address, m.absoluteBaseHostPath, "", 1), filename)
 }
 
 func (m *mediaManager) GetFile(fileName string) (file *os.File) {
@@ -231,22 +219,20 @@ func (m *mediaManager) GetFile(fileName string) (file *os.File) {
 	return file
 }
 
-func NewMediaManager(address string, createPath ...bool) MediaManager {
+func NewMediaManager(address, absoluteBaseHostPath string, createPath ...bool) MediaManager {
 	create := false
 	if len(createPath) > 0 {
 		create = createPath[0]
 	}
 	media := &mediaManager{}
 
-	if len(address) > 0 && address[0] == '/' {
-		media.address = media.TrimEnd(address)
-	} else if len(address) > 1 && (address[0] != '/' || address[0:2] == "./") {
+	media.absoluteBaseHostPath = absoluteBaseHostPath
+
+	if len(address) > 1 && (address[0] != '/' || address[0:2] == "./") {
 		media.address = media.JoinPaths(getPwd(), address)
 	} else {
-		panic(fmt.Sprintf("couldn't connect %s with %s", getPwd(), address))
+		media.address = address
 	}
-
-	media.address = media.TrimEnd(media.address)
 
 	if create {
 		media.CreateFolder()

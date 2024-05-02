@@ -36,6 +36,7 @@ type TranslatorStatusCodesI interface {
 }
 
 type TranslatorUsersI interface {
+	InvalidAvatar() string
 	UserNotFound() string
 	Translate(key string, optionalInputs ...[]any) string
 }

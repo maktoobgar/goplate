@@ -4,7 +4,7 @@ CREATE TABLE "users" (
 	"phone_number" varchar(16) NOT NULL UNIQUE,
 	"email" varchar(64) UNIQUE,
 	"password" varchar(256) NOT NULL,
-	"profile" varchar(256),
+	"avatar" varchar(256),
 	"first_name" varchar(128),
 	"last_name" varchar(128),
 	"display_name" varchar(128) NOT NULL,

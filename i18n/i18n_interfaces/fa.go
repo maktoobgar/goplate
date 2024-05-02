@@ -110,6 +110,10 @@ func (t *TranslatorStatusCodes) Translate(key string, optionalInputs ...[]any) s
 
 type TranslatorUsers struct{}
 
+func (t *TranslatorUsers) InvalidAvatar() string {
+	return "محتوای آواتار صحیح ارسال نشده است"
+}
+
 func (t *TranslatorUsers) UserNotFound() string {
 	return "کاربر یافت نشد"
 }

@@ -110,6 +110,10 @@ func (t *TranslatorEnStatusCodes) Translate(key string, optionalInputs ...[]any)
 
 type TranslatorEnUsers struct{}
 
+func (t *TranslatorEnUsers) InvalidAvatar() string {
+	return "invalid avatar"
+}
+
 func (t *TranslatorEnUsers) UserNotFound() string {
 	return "user not found"
 }

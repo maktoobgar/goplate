@@ -18,4 +18,7 @@ func UsersHTTP(app router.Party) {
 
 	updateMePatchValidator := middlewares.Validate(users_handlers.UpdateMePatchValidator, users_handlers.UpdateMePatchReq{})
 	api.Patch("/me", updateMePatchValidator, users_handlers.UpdateMePatch)
+
+	updateAvatarValidator := middlewares.Validate(users_handlers.UpdateAvatarValidator, users_handlers.UpdateAvatarReq{})
+	api.Put("/me/avatar", updateAvatarValidator, users_handlers.UpdateAvatar)
 }

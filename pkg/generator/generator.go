@@ -16,6 +16,7 @@ import (
 	g "service/global"
 	"service/i18n/i18n_interfaces"
 	"service/repositories"
+	"service/validators"
 
 	"github.com/kataras/iris/v12"
 )
@@ -26,7 +27,7 @@ type %sReq struct {
 type %sRes struct {
 }
 
-var %sValidator = g.Galidator.Validator(%sReq{})
+var %sValidator = validators.Generator.Validator(%sReq{})
 
 func %s(ctx iris.Context) {
 	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)

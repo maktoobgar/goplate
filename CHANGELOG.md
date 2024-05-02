@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: update avatar handler added + small changes
 - 🎉 feat: added patch operation
 - 🎉 feat: handler generation added
 - 🎉 feat: added Me route and expanded repositories generation part

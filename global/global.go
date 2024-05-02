@@ -57,7 +57,7 @@ const (
 
 	// Maximum File sizes (in KB)
 
-	MaximumProfilePicSize  = int64(500 * 1024)  // 500 KB
+	MaximumAvatarPicSize   = int64(500 * 1024)  // 500 KB
 	MaximumCertificateSize = int64(5000 * 1024) // 5000 KB(5 MB)
 
 	// Regex
@@ -81,6 +81,7 @@ var DB db.RelationalDatabaseFunction = nil
 
 // Media manager for all medias
 var Media media_manager.MediaManager = nil
+var UsersMedia media_manager.MediaManager = nil
 
 // Cron of the project
 var Cron *cron.Cron = nil

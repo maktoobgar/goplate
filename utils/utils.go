@@ -3,19 +3,22 @@ package utils
 import (
 	"bytes"
 	"database/sql"
+	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	g "service/global"
 	"service/i18n/i18n_interfaces"
 	"service/pkg/errors"
+	"strings"
 	"sync"
 
-	"github.com/golodash/galidator"
 	"github.com/kataras/iris/v12"
 )
 
-func sendIfCtxNotCancelled(ctx iris.Context, status int, value any, sendEmpty ...bool) {
+func sendIfCtxNotCancelled[T any](ctx iris.Context, status int, value *T, sendEmpty ...bool) {
 	if ctx.Err() == nil {
 		writerLock := ctx.Values().Get(g.WriterLock).(*sync.Mutex)
 		writerLock.Lock()
@@ -23,6 +26,11 @@ func sendIfCtxNotCancelled(ctx iris.Context, status int, value any, sendEmpty ..
 
 		closedWriter := ctx.Values().Get(g.ClosedWriter).(bool)
 		if !closedWriter {
+			if reflectValue := reflect.ValueOf(value); reflectValue.IsValid() && reflectValue.Kind() == reflect.Struct {
+				if method := reflectValue.MethodByName("Reformat"); method.IsValid() {
+					method.Call([]reflect.Value{reflectValue})
+				}
+			}
 			if status != -1 {
 				ctx.StatusCode(status)
 			}
@@ -43,16 +51,16 @@ func SendJsonMessage(ctx iris.Context, message string, data map[string]any, stat
 	}
 	data["message"] = message
 
-	sendIfCtxNotCancelled(ctx, code, data)
+	sendIfCtxNotCancelled(ctx, code, &data)
 }
 
-func SendJson(ctx iris.Context, data any, status ...int) {
+func SendJson[T any](ctx iris.Context, data T, status ...int) {
 	code := 200
 	if len(status) > 0 {
 		code = status[0]
 	}
 
-	sendIfCtxNotCancelled(ctx, code, data)
+	sendIfCtxNotCancelled(ctx, code, &data)
 }
 
 func SendEmpty(ctx iris.Context, status ...int) {
@@ -61,7 +69,7 @@ func SendEmpty(ctx iris.Context, status ...int) {
 		code = status[0]
 	}
 
-	sendIfCtxNotCancelled(ctx, code, nil, true)
+	sendIfCtxNotCancelled(ctx, code, &struct{}{}, true)
 }
 
 func Panic500(err error) {
@@ -75,26 +83,31 @@ func SendMessage(ctx iris.Context, message string, data ...map[string]any) {
 	}
 
 	output["message"] = message
-	sendIfCtxNotCancelled(ctx, -1, output)
+	sendIfCtxNotCancelled(ctx, -1, &output)
 }
 
-func SendPage(ctx iris.Context, dataCount int64, perPage int, page int, data any) {
+func SendPage[T any](ctx iris.Context, dataCount int64, perPage int, page int, data []T) {
 	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	pagesCount := CalculatePagesCount(dataCount, perPage)
 	if page > pagesCount {
 		panic(errors.New(errors.NotFoundStatus, translator.StatusCodes().PageNotFound(), fmt.Sprintf("page %d requested but we have %d pages", page, pagesCount)))
 	}
-	dataValue := reflect.ValueOf(data)
-	if dataValue.Type().Kind() == reflect.Ptr {
-		dataValue = dataValue.Elem()
+	dataLen := len(data)
+
+	for _, singleData := range data {
+		if reflectValue := reflect.ValueOf(singleData).Addr(); reflectValue.IsValid() && reflectValue.Elem().Kind() == reflect.Struct {
+			if method := reflectValue.MethodByName("Reformat"); method.IsValid() {
+				method.Call([]reflect.Value{})
+			}
+		}
 	}
 
-	sendIfCtxNotCancelled(ctx, -1, map[string]any{
+	sendIfCtxNotCancelled(ctx, -1, &map[string]any{
 		"page":        page,
 		"per_page":    perPage,
 		"pages_count": pagesCount,
 		"all_count":   dataCount,
-		"count":       dataValue.Len(),
+		"count":       dataLen,
 		"data":        data,
 	})
 }
@@ -121,12 +134,6 @@ func Min(v1 int, v2 int) int {
 		return v2
 	} else {
 		return v1
-	}
-}
-
-func Validate(data any, validator galidator.Validator, translator func(key string, optionalInputs ...[]any) string) {
-	if errs := validator.Validate(data, func(s string) string { return translator(s) }); errs != nil {
-		panic(errors.New(errors.InvalidStatus, "BodyNotProvidedProperly", "", errs))
 	}
 }
 
@@ -223,4 +230,28 @@ func CastParams(params interface{}, ctx iris.Context, defaultValues ...interface
 
 func IsErrorNotFound(err error) bool {
 	return err != nil && err == sql.ErrNoRows
+}
+
+// Returns the content, then content type, then the extension
+func GetFile(content string) ([]byte, string, string) {
+	fileByte, _ := base64.StdEncoding.DecodeString(content)
+	contentType := http.DetectContentType(fileByte)
+	extension := ""
+	extensionExtractor := strings.Split(contentType, "/")
+	if len(extensionExtractor) > 1 {
+		extension = extensionExtractor[1]
+	}
+	return fileByte, contentType, extension
+}
+
+func EncodeId(id int32) string {
+	// Encode the 64 bit number
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(id))
+	encoded := base64.StdEncoding.EncodeToString([]byte(b))
+
+	// https://youtu.be/gocwRvLhDf8?t=75
+	encodedId := strings.ReplaceAll(encoded[:11], "+", "-")
+	encodedId = strings.ReplaceAll(encodedId, "/", "_")
+	return encodedId
 }

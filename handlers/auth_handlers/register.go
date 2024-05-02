@@ -6,6 +6,7 @@ import (
 	"service/pkg/copier"
 	"service/repositories"
 	"service/utils"
+	"service/validators"
 
 	"github.com/kataras/iris/v12"
 )
@@ -17,7 +18,7 @@ type RegisterReq struct {
 	Password    string `json:"password" g:"required,min=3"`
 }
 
-var RegisterValidator = g.Galidator.Validator(RegisterReq{})
+var RegisterValidator = validators.Generator.Validator(RegisterReq{})
 
 func Register(ctx iris.Context) {
 	req := ctx.Values().Get(g.RequestBody).(*RegisterReq)

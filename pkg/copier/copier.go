@@ -21,6 +21,12 @@ func Copy[T, T2 any](to *T, from *T2) T {
 
 	fromValue := reflect.ValueOf(from).Elem()
 	toValue := reflect.ValueOf(to).Elem()
+	if fromValue := reflect.ValueOf(from); fromValue.IsValid() && fromValue.Elem().Kind() == reflect.Struct {
+		if method := fromValue.MethodByName("Reformat"); method.IsValid() {
+			method.Call([]reflect.Value{})
+		}
+	}
+
 	for _, field := range reflect.VisibleFields(fromValue.Type()) {
 		if field.IsExported() {
 			toFieldValue := toValue.FieldByName(field.Name)

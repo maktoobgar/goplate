@@ -18,5 +18,6 @@ Auth:
 
 Users:
   UserNotFound: "user not found"
+  InvalidAvatar: "invalid avatar"
 
 HelloWorld: "Hello World"
