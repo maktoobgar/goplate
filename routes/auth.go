@@ -19,4 +19,6 @@ func AuthHTTP(app router.Party) {
 	authApi.Post("/login_with_email", loginWithEmailValidator, auth_handlers.LoginWithEmail)
 
 	authApi.Post("/refresh_token", auth_handlers.RefreshToken)
+
+	authApi.Post("/logout", auth_handlers.Logout)
 }

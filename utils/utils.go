@@ -64,7 +64,7 @@ func SendJson[T any](ctx iris.Context, data T, status ...int) {
 }
 
 func SendEmpty(ctx iris.Context, status ...int) {
-	code := 200
+	code := 204
 	if len(status) > 0 {
 		code = status[0]
 	}

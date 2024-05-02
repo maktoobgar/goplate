@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: logout added
 - 🎉 feat: refresh token route added
 - 🎉 feat: update avatar handler added + small changes
 - 🎉 feat: added patch operation
