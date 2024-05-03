@@ -8,6 +8,7 @@ Galidator:
   MinLength: "must be at least $min characters in length"
   MaxLength: "must be at most $max characters in length"
   Phone: "sent phone number is not valid"
+  ImageType: "only png and jpg image formats are allowed"
 
 Auth:
   UserWithPhoneNumberNotFound: "no user found with provided phone number"

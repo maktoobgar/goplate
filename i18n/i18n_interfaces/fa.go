@@ -128,6 +128,10 @@ func (t *TranslatorAuth) Translate(key string, optionalInputs ...[]any) string {
 
 type TranslatorGalidator struct{}
 
+func (t *TranslatorGalidator) ImageType() string {
+	return "تنها تصاویر png و jpg قابل قبول هستند"
+}
+
 func (t *TranslatorGalidator) MaxLength() string {
 	return "حداکثر باید دارای طول $max کاراکتر باشد"
 }

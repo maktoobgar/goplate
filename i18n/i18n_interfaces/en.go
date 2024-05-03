@@ -128,6 +128,10 @@ func (t *TranslatorEnAuth) Translate(key string, optionalInputs ...[]any) string
 
 type TranslatorEnGalidator struct{}
 
+func (t *TranslatorEnGalidator) ImageType() string {
+	return "only png and jpg image formats are allowed"
+}
+
 func (t *TranslatorEnGalidator) MaxLength() string {
 	return "must be at most $max characters in length"
 }
