@@ -2,7 +2,9 @@
 CREATE TABLE "users" (
 	"id" serial NOT NULL UNIQUE,
 	"phone_number" varchar(16) NOT NULL,
+	"phone_number_verified" BOOLEAN NOT NULL DEFAULT FALSE,
 	"email" varchar(64),
+	"email_verified" BOOLEAN NOT NULL DEFAULT FALSE,
 	"password" varchar(256) NOT NULL,
 	"avatar" varchar(256),
 	"first_name" varchar(128),

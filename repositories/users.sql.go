@@ -14,8 +14,76 @@ import (
 	"service/i18n/i18n_interfaces"
 )
 
+const confirmEmail = `-- name: ConfirmEmail :one
+UPDATE users SET email_verified = TRUE WHERE id = $1 RETURNING id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
+`
+
+func (q *Queries) ConfirmEmail(ctx context.Context, id int32) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, confirmEmail, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
+		&i.Email,
+		&i.EmailVerified,
+		&i.Password,
+		&i.Avatar,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.Params,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	return i, err
+}
+
+const confirmPhoneNumber = `-- name: ConfirmPhoneNumber :one
+UPDATE users SET phone_number_verified = TRUE WHERE id = $1 RETURNING id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
+`
+
+func (q *Queries) ConfirmPhoneNumber(ctx context.Context, id int32) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, confirmPhoneNumber, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
+		&i.Email,
+		&i.EmailVerified,
+		&i.Password,
+		&i.Avatar,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.Params,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE email = $1
+SELECT id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (User, error) {
@@ -25,7 +93,9 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (Use
 	err := row.Scan(
 		&i.ID,
 		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
 		&i.Email,
+		&i.EmailVerified,
 		&i.Password,
 		&i.Avatar,
 		&i.FirstName,
@@ -47,7 +117,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (Use
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE id = $1
+SELECT id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
@@ -57,7 +127,9 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
 		&i.Email,
+		&i.EmailVerified,
 		&i.Password,
 		&i.Avatar,
 		&i.FirstName,
@@ -79,7 +151,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 }
 
 const getUserWithTokenId = `-- name: GetUserWithTokenId :one
-SELECT u.id, u.phone_number, u.email, u.password, u.avatar, u.first_name, u.last_name, u.display_name, u.gender, u.is_active, u.registered, u.deactivation_reason, u.is_admin, u.params, u.is_superuser, u.created_at FROM users u JOIN tokens t ON u.id = t.user_id WHERE t.id = $1
+SELECT u.id, u.phone_number, u.phone_number_verified, u.email, u.email_verified, u.password, u.avatar, u.first_name, u.last_name, u.display_name, u.gender, u.is_active, u.registered, u.deactivation_reason, u.is_admin, u.params, u.is_superuser, u.created_at FROM users u JOIN tokens t ON u.id = t.user_id WHERE t.id = $1
 `
 
 func (q *Queries) GetUserWithTokenId(ctx context.Context, id int32) (User, error) {
@@ -89,7 +161,9 @@ func (q *Queries) GetUserWithTokenId(ctx context.Context, id int32) (User, error
 	err := row.Scan(
 		&i.ID,
 		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
 		&i.Email,
+		&i.EmailVerified,
 		&i.Password,
 		&i.Avatar,
 		&i.FirstName,
@@ -111,7 +185,7 @@ func (q *Queries) GetUserWithTokenId(ctx context.Context, id int32) (User, error
 }
 
 const loginUserWithEmail = `-- name: LoginUserWithEmail :one
-SELECT id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE email = $1
+SELECT id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE email = $1
 `
 
 func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) (User, error) {
@@ -121,7 +195,9 @@ func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) 
 	err := row.Scan(
 		&i.ID,
 		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
 		&i.Email,
+		&i.EmailVerified,
 		&i.Password,
 		&i.Avatar,
 		&i.FirstName,
@@ -143,7 +219,7 @@ func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) 
 }
 
 const loginUserWithPhoneNumber = `-- name: LoginUserWithPhoneNumber :one
-SELECT id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE phone_number = $1
+SELECT id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE phone_number = $1
 `
 
 func (q *Queries) LoginUserWithPhoneNumber(ctx context.Context, phoneNumber string) (User, error) {
@@ -153,7 +229,9 @@ func (q *Queries) LoginUserWithPhoneNumber(ctx context.Context, phoneNumber stri
 	err := row.Scan(
 		&i.ID,
 		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
 		&i.Email,
+		&i.EmailVerified,
 		&i.Password,
 		&i.Avatar,
 		&i.FirstName,
@@ -180,7 +258,7 @@ INSERT INTO users (
 ) VALUES (
   $1, $2, $3, $4, $5
 )
-RETURNING id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
+RETURNING id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
 `
 
 type RegisterUserParams struct {
@@ -204,7 +282,9 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 	err := row.Scan(
 		&i.ID,
 		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
 		&i.Email,
+		&i.EmailVerified,
 		&i.Password,
 		&i.Avatar,
 		&i.FirstName,
@@ -226,7 +306,7 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 }
 
 const updateAvatar = `-- name: UpdateAvatar :one
-UPDATE users SET avatar = $1 WHERE id = $2 RETURNING id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
+UPDATE users SET avatar = $1 WHERE id = $2 RETURNING id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
 `
 
 type UpdateAvatarParams struct {
@@ -241,7 +321,9 @@ func (q *Queries) UpdateAvatar(ctx context.Context, arg UpdateAvatarParams) (Use
 	err := row.Scan(
 		&i.ID,
 		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
 		&i.Email,
+		&i.EmailVerified,
 		&i.Password,
 		&i.Avatar,
 		&i.FirstName,
@@ -263,7 +345,7 @@ func (q *Queries) UpdateAvatar(ctx context.Context, arg UpdateAvatarParams) (Use
 }
 
 const updateMe = `-- name: UpdateMe :one
-UPDATE users SET first_name = $1, last_name = $2, display_name = $3, gender = $4 WHERE id = $5 RETURNING id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
+UPDATE users SET first_name = $1, last_name = $2, display_name = $3, gender = $4 WHERE id = $5 RETURNING id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
 `
 
 type UpdateMeParams struct {
@@ -287,7 +369,9 @@ func (q *Queries) UpdateMe(ctx context.Context, arg UpdateMeParams) (User, error
 	err := row.Scan(
 		&i.ID,
 		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
 		&i.Email,
+		&i.EmailVerified,
 		&i.Password,
 		&i.Avatar,
 		&i.FirstName,
@@ -309,7 +393,7 @@ func (q *Queries) UpdateMe(ctx context.Context, arg UpdateMeParams) (User, error
 }
 
 const updateUserParams = `-- name: UpdateUserParams :one
-UPDATE users SET params = $1 WHERE id = $2 RETURNING id, phone_number, email, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
+UPDATE users SET params = $1 WHERE id = $2 RETURNING id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at
 `
 
 type UpdateUserParamsParams struct {
@@ -324,7 +408,9 @@ func (q *Queries) UpdateUserParams(ctx context.Context, arg UpdateUserParamsPara
 	err := row.Scan(
 		&i.ID,
 		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
 		&i.Email,
+		&i.EmailVerified,
 		&i.Password,
 		&i.Avatar,
 		&i.FirstName,

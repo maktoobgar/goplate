@@ -24,25 +24,30 @@ func RequestVerifyEmail(ctx iris.Context) {
 		panic(errors.New(errors.InvalidStatus, translator.Auth().EmailNotFound(), "user has no email"))
 	}
 
+	if user.EmailVerified {
+		panic(errors.New(errors.InvalidStatus, translator.Auth().EmailIsAlreadyVerified(), "email is already verified"))
+	}
+
 	params := user.GetParams()
 	// Check if it is allowed to generate new code
 	now := time.Now()
-	if refreshTimeFloat, ok := params["emailVerifyCodeRefreshTime"]; ok {
+	if refreshTimeFloat, ok := params["emailRefresh"]; ok {
 		refreshTime := int64(refreshTimeFloat.(float64))
 		if refreshTime > now.Unix() {
 			remainingTime := refreshTime - now.Unix()
-			panic(errors.New(errors.TooManyRequests, translator.Auth().EmailVerifyCodeTooManyRequests(remainingTime), fmt.Sprintf("try %d seconds later", remainingTime)))
+			panic(errors.New(errors.TooManyRequests, translator.Auth().EmailVerifyCodeCoolDown(remainingTime), fmt.Sprintf("try %d seconds later", remainingTime)))
 		}
 	}
 
 	generatedCode := utils.GenerateVerificationCode(6)
-	params["emailVerifyCode"] = generatedCode
-	params["emailVerifyCodeExpire"] = now.Add(time.Minute * 10).Unix()
-	params["emailVerifyCodeRefreshTime"] = now.Add(time.Minute * 3).Unix()
+	params["emailCode"] = generatedCode
+	params["emailAttempts"] = 10
+	params["emailExpire"] = now.Add(time.Minute * 10).Unix()
+	params["emailRefresh"] = now.Add(time.Minute * 3).Unix()
 	user, _ = user.SetParams(ctx, db, params)
 
 	if g.CFG.Debug {
-		fmt.Println("emailVerifyCode: ", generatedCode)
+		fmt.Println("emailCode: ", generatedCode)
 	}
 
 	utils.SendMessage(ctx, translator.Auth().EmailVerifyCodeSent())

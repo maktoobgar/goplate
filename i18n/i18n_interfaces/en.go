@@ -34,28 +34,64 @@ func (t *TranslatorEn) Translate(key string, optionalInputs ...[]any) string {
 
 type TranslatorEnAuth struct{}
 
+func (t *TranslatorEnAuth) EmailIsAlreadyVerified() string {
+	return "email is already verified"
+}
+
 func (t *TranslatorEnAuth) EmailNotFound() string {
 	return "email not found"
+}
+
+func (t *TranslatorEnAuth) EmailVerified() string {
+	return "email verified"
+}
+
+func (t *TranslatorEnAuth) EmailVerifyCodeCoolDown(seconds int64) string {
+	return fmt.Sprintf("can't generate code Now, try %v seconds later", seconds)
+}
+
+func (t *TranslatorEnAuth) EmailVerifyCodeExpired() string {
+	return "provided email verification code is expired"
 }
 
 func (t *TranslatorEnAuth) EmailVerifyCodeSent() string {
 	return "email verification code sent"
 }
 
-func (t *TranslatorEnAuth) EmailVerifyCodeTooManyRequests(seconds int64) string {
-	return fmt.Sprintf("can't generate code Now, try %v seconds later", seconds)
+func (t *TranslatorEnAuth) EmailVerifyCodeTooManyRequests() string {
+	return "you have reached the limit for number of allowed requests"
+}
+
+func (t *TranslatorEnAuth) FirstRequestForVerifyCode() string {
+	return "please first request for a verification code"
 }
 
 func (t *TranslatorEnAuth) InvalidToken() string {
 	return "invalid token"
 }
 
+func (t *TranslatorEnAuth) PhoneNumberIsAlreadyVerified() string {
+	return "phone number is already verified"
+}
+
+func (t *TranslatorEnAuth) PhoneNumberVerified() string {
+	return "phone number verified"
+}
+
+func (t *TranslatorEnAuth) PhoneNumberVerifyCodeCoolDown(seconds int64) string {
+	return fmt.Sprintf("can't generate code Now, try %v seconds later", seconds)
+}
+
+func (t *TranslatorEnAuth) PhoneNumberVerifyCodeExpired() string {
+	return "provided phone number verification code is expired"
+}
+
 func (t *TranslatorEnAuth) PhoneNumberVerifyCodeSent() string {
 	return "phone number verification code sent"
 }
 
-func (t *TranslatorEnAuth) PhoneNumberVerifyCodeTooManyRequests(seconds int64) string {
-	return fmt.Sprintf("can't generate code Now, try %v seconds later", seconds)
+func (t *TranslatorEnAuth) PhoneNumberVerifyCodeTooManyRequests() string {
+	return "you have reached the limit for number of allowed requests"
 }
 
 func (t *TranslatorEnAuth) Unauthorized() string {
@@ -68,6 +104,10 @@ func (t *TranslatorEnAuth) UserWithEmailNotFound() string {
 
 func (t *TranslatorEnAuth) UserWithPhoneNumberNotFound() string {
 	return "no user found with provided phone number"
+}
+
+func (t *TranslatorEnAuth) WrongCode(attempts int) string {
+	return fmt.Sprintf("provided code doesn't match, you are allowed %v more attempts", attempts)
 }
 
 func (t *TranslatorEnAuth) WrongPasswordWithEmailPassword() string {

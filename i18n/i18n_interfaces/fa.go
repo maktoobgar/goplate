@@ -34,28 +34,64 @@ func (t *Translator) Translate(key string, optionalInputs ...[]any) string {
 
 type TranslatorAuth struct{}
 
+func (t *TranslatorAuth) EmailIsAlreadyVerified() string {
+	return "ایمیل در حال حاضر فعال است"
+}
+
 func (t *TranslatorAuth) EmailNotFound() string {
 	return "ایمیل یافت نشد"
+}
+
+func (t *TranslatorAuth) EmailVerified() string {
+	return "ایمیل با موفقیت تایید شد"
+}
+
+func (t *TranslatorAuth) EmailVerifyCodeCoolDown(seconds int64) string {
+	return fmt.Sprintf("برای درخواست تولید دوباره کد، %v ثانیه دیگر تلاش کنید", seconds)
+}
+
+func (t *TranslatorAuth) EmailVerifyCodeExpired() string {
+	return "کد ایمیل منقضی شده است"
 }
 
 func (t *TranslatorAuth) EmailVerifyCodeSent() string {
 	return "کد تایید ایمیل ارسال شد"
 }
 
-func (t *TranslatorAuth) EmailVerifyCodeTooManyRequests(seconds int64) string {
-	return fmt.Sprintf("برای درخواست تولید دوباره کد، %v ثانیه دیگر تلاش کنید", seconds)
+func (t *TranslatorAuth) EmailVerifyCodeTooManyRequests() string {
+	return "تعداد درخواست های مجاز شما به انتها رسیده است"
+}
+
+func (t *TranslatorAuth) FirstRequestForVerifyCode() string {
+	return "لطفا ابتدا درخواست ارسال کد را ارسال کنید"
 }
 
 func (t *TranslatorAuth) InvalidToken() string {
 	return "توکن نامعتبر"
 }
 
+func (t *TranslatorAuth) PhoneNumberIsAlreadyVerified() string {
+	return "شماره تماس در حال حاضر فعال است"
+}
+
+func (t *TranslatorAuth) PhoneNumberVerified() string {
+	return "شماره تماس با موفقیت تایید شد"
+}
+
+func (t *TranslatorAuth) PhoneNumberVerifyCodeCoolDown(seconds int64) string {
+	return fmt.Sprintf("برای درخواست تولید دوباره کد، %v ثانیه دیگر تلاش کنید", seconds)
+}
+
+func (t *TranslatorAuth) PhoneNumberVerifyCodeExpired() string {
+	return "کد شماره تماس منقضی شده است"
+}
+
 func (t *TranslatorAuth) PhoneNumberVerifyCodeSent() string {
 	return "کد تایید شماره تماس ارسال شد"
 }
 
-func (t *TranslatorAuth) PhoneNumberVerifyCodeTooManyRequests(seconds int64) string {
-	return fmt.Sprintf("برای درخواست تولید دوباره کد، %v ثانیه دیگر تلاش کنید", seconds)
+func (t *TranslatorAuth) PhoneNumberVerifyCodeTooManyRequests() string {
+	return "تعداد درخواست های مجاز شما به انتها رسیده است"
 }
 
 func (t *TranslatorAuth) Unauthorized() string {
@@ -68,6 +104,10 @@ func (t *TranslatorAuth) UserWithEmailNotFound() string {
 
 func (t *TranslatorAuth) UserWithPhoneNumberNotFound() string {
 	return "کاربری با شماره تماس وارده یافت نشد"
+}
+
+func (t *TranslatorAuth) WrongCode(attempts int) string {
+	return fmt.Sprintf("کد وارده تطبیق ندارد، %v تلاش دیگر مجاز است", attempts)
 }
 
 func (t *TranslatorAuth) WrongPasswordWithEmailPassword() string {

@@ -29,3 +29,9 @@ UPDATE users SET avatar = $1 WHERE id = $2 RETURNING *;
 
 -- name: UpdateUserParams :one
 UPDATE users SET params = $1 WHERE id = $2 RETURNING *;
+
+-- name: ConfirmPhoneNumber :one
+UPDATE users SET phone_number_verified = TRUE WHERE id = $1 RETURNING *;
+
+-- name: ConfirmEmail :one
+UPDATE users SET email_verified = TRUE WHERE id = $1 RETURNING *;

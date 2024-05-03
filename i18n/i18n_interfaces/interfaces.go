@@ -12,15 +12,25 @@ type TranslatorI interface {
 }
 
 type TranslatorAuthI interface {
+	EmailIsAlreadyVerified() string
 	EmailNotFound() string
+	EmailVerified() string
+	EmailVerifyCodeCoolDown(seconds int64) string
+	EmailVerifyCodeExpired() string
 	EmailVerifyCodeSent() string
-	EmailVerifyCodeTooManyRequests(seconds int64) string
+	EmailVerifyCodeTooManyRequests() string
+	FirstRequestForVerifyCode() string
 	InvalidToken() string
+	PhoneNumberIsAlreadyVerified() string
+	PhoneNumberVerified() string
+	PhoneNumberVerifyCodeCoolDown(seconds int64) string
+	PhoneNumberVerifyCodeExpired() string
 	PhoneNumberVerifyCodeSent() string
-	PhoneNumberVerifyCodeTooManyRequests(seconds int64) string
+	PhoneNumberVerifyCodeTooManyRequests() string
 	Unauthorized() string
 	UserWithEmailNotFound() string
 	UserWithPhoneNumberNotFound() string
+	WrongCode(attempts int) string
 	WrongPasswordWithEmailPassword() string
 	WrongPasswordWithPhoneNumberPassword() string
 	Translate(key string, optionalInputs ...[]any) string

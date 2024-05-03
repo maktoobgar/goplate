@@ -31,22 +31,24 @@ type Token struct {
 }
 
 type User struct {
-	ID                 int32          `json:"id"`
-	PhoneNumber        string         `json:"phone_number"`
-	Email              sql.NullString `json:"email"`
-	Password           string         `json:"password"`
-	Avatar             sql.NullString `json:"avatar"`
-	FirstName          sql.NullString `json:"first_name"`
-	LastName           sql.NullString `json:"last_name"`
-	DisplayName        string         `json:"display_name"`
-	Gender             int32          `json:"gender"`
-	IsActive           bool           `json:"is_active"`
-	Registered         bool           `json:"registered"`
-	DeactivationReason sql.NullString `json:"deactivation_reason"`
-	IsAdmin            bool           `json:"is_admin"`
-	Params             sql.NullString `json:"params"`
-	IsSuperuser        bool           `json:"is_superuser"`
-	CreatedAt          time.Time      `json:"created_at"`
+	ID                  int32          `json:"id"`
+	PhoneNumber         string         `json:"phone_number"`
+	PhoneNumberVerified bool           `json:"phone_number_verified"`
+	Email               sql.NullString `json:"email"`
+	EmailVerified       bool           `json:"email_verified"`
+	Password            string         `json:"password"`
+	Avatar              sql.NullString `json:"avatar"`
+	FirstName           sql.NullString `json:"first_name"`
+	LastName            sql.NullString `json:"last_name"`
+	DisplayName         string         `json:"display_name"`
+	Gender              int32          `json:"gender"`
+	IsActive            bool           `json:"is_active"`
+	Registered          bool           `json:"registered"`
+	DeactivationReason  sql.NullString `json:"deactivation_reason"`
+	IsAdmin             bool           `json:"is_admin"`
+	Params              sql.NullString `json:"params"`
+	IsSuperuser         bool           `json:"is_superuser"`
+	CreatedAt           time.Time      `json:"created_at"`
 }
 
 type UsersGroup struct {

@@ -20,25 +20,30 @@ func RequestVerifyPhoneNumber(ctx iris.Context) {
 	queries := repositories.New(db)
 	_, _, _, _ = db, user, translator, queries
 
+	if user.PhoneNumberVerified {
+		panic(errors.New(errors.InvalidStatus, translator.Auth().PhoneNumberIsAlreadyVerified(), "phone number is already verified"))
+	}
+
 	params := user.GetParams()
 	// Check if it is allowed to generate new code
 	now := time.Now()
-	if refreshTimeFloat, ok := params["phoneNumberVerifyCodeRefreshTime"]; ok {
+	if refreshTimeFloat, ok := params["phoneRefresh"]; ok {
 		refreshTime := int64(refreshTimeFloat.(float64))
 		if refreshTime > now.Unix() {
 			remainingTime := refreshTime - now.Unix()
-			panic(errors.New(errors.TooManyRequests, translator.Auth().PhoneNumberVerifyCodeTooManyRequests(remainingTime), fmt.Sprintf("try %d seconds later", remainingTime)))
+			panic(errors.New(errors.TooManyRequests, translator.Auth().PhoneNumberVerifyCodeCoolDown(remainingTime), fmt.Sprintf("try %d seconds later", remainingTime)))
 		}
 	}
 
 	generatedCode := utils.GenerateVerificationCode(6)
-	params["phoneNumberVerifyCode"] = generatedCode
-	params["phoneNumberVerifyCodeExpire"] = now.Add(time.Minute * 10).Unix()
-	params["phoneNumberVerifyCodeRefreshTime"] = now.Add(time.Minute * 3).Unix()
+	params["phoneCode"] = generatedCode
+	params["phoneAttempts"] = 10
+	params["phoneExpire"] = now.Add(time.Minute * 10).Unix()
+	params["phoneRefresh"] = now.Add(time.Minute * 3).Unix()
 	user, _ = user.SetParams(ctx, db, params)
 
 	if g.CFG.Debug {
-		fmt.Println("PhoneNumberVerifyCode: ", generatedCode)
+		fmt.Println("PhoneCode: ", generatedCode)
 	}
 
 	utils.SendMessage(ctx, translator.Auth().PhoneNumberVerifyCodeSent())

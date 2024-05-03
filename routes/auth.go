@@ -25,4 +25,10 @@ func AuthHTTP(app router.Party) {
 	authApi.Post("/request_verify_email", middlewares.Auth, auth_handlers.RequestVerifyEmail)
 
 	authApi.Post("/request_verify_phone_number", middlewares.Auth, auth_handlers.RequestVerifyPhoneNumber)
+
+	verifyEmailValidator := middlewares.Validate(auth_handlers.VerifyEmailValidator, auth_handlers.VerifyEmailReq{})
+	authApi.Post("/verify_email", middlewares.Auth, verifyEmailValidator, auth_handlers.VerifyEmail)
+
+	verifyPhoneNumberValidator := middlewares.Validate(auth_handlers.VerifyPhoneNumberValidator, auth_handlers.VerifyPhoneNumberReq{})
+	authApi.Post("/verify_phone_number", middlewares.Auth, verifyPhoneNumberValidator, auth_handlers.VerifyPhoneNumber)
 }
