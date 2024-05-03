@@ -2,9 +2,12 @@ package repositories
 
 import (
 	"database/sql"
+	"encoding/json"
 	"regexp"
 	g "service/global"
+	"service/i18n/i18n_interfaces"
 	"service/pkg/copier"
+	"service/pkg/errors"
 	"service/static_models"
 	"time"
 
@@ -86,4 +89,21 @@ func (u *User) Reformat() {
 			u.Avatar.String = g.CFG.Domain + u.Avatar.String
 		}
 	}
+}
+
+func (u *User) GetParams() map[string]any {
+	data := map[string]any{}
+	json.Unmarshal([]byte(u.Params.String), &data)
+	return data
+}
+
+func (u *User) SetParams(ctx iris.Context, db *sql.DB, data map[string]any) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	u.Params.String = string(bytes)
+	u.Params.Valid = len(string(bytes)) > 0
+	return New(db).UpdateUserParams(ctx, copier.Copy(&UpdateUserParamsParams{}, u))
 }

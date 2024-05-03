@@ -19,7 +19,7 @@ var authRe, _ = regexp.Compile(`^Bearer (eyJ[a-zA-Z0-9_\-]+?\.[a-zA-Z0-9_\-]+?\.
 
 func Auth(ctx iris.Context) {
 	accessToken := ctx.GetHeader(g.AccessToken)
-	translator := ctx.Values().Get(g.TranslatorKey).(*i18n_interfaces.Translator)
+	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	db := ctx.Values().Get(g.DbInstance).(*sql.DB)
 
 	accessTokenAndId := authRe.FindStringSubmatch(accessToken)

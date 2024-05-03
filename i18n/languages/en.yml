@@ -16,6 +16,11 @@ Auth:
   WrongPasswordWithEmailPassword: "provided email or password is not correct"
   Unauthorized: "unauthorized"
   InvalidToken: "invalid token"
+  EmailNotFound: "email not found"
+  EmailVerifyCodeSent: "email verification code sent"
+  EmailVerifyCodeTooManyRequests: "can't generate code Now, try {seconds} seconds later"
+  PhoneNumberVerifyCodeSent: "phone number verification code sent"
+  PhoneNumberVerifyCodeTooManyRequests: "can't generate code Now, try {seconds} seconds later"
 
 Users:
   UserNotFound: "user not found"

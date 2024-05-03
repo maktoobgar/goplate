@@ -1,5 +1,7 @@
 package i18n_interfaces
 
+import "fmt"
+
 type TranslatorEn struct{}
 
 func (t *TranslatorEn) Auth() TranslatorAuthI {
@@ -32,8 +34,28 @@ func (t *TranslatorEn) Translate(key string, optionalInputs ...[]any) string {
 
 type TranslatorEnAuth struct{}
 
+func (t *TranslatorEnAuth) EmailNotFound() string {
+	return "email not found"
+}
+
+func (t *TranslatorEnAuth) EmailVerifyCodeSent() string {
+	return "email verification code sent"
+}
+
+func (t *TranslatorEnAuth) EmailVerifyCodeTooManyRequests(seconds int64) string {
+	return fmt.Sprintf("can't generate code Now, try %v seconds later", seconds)
+}
+
 func (t *TranslatorEnAuth) InvalidToken() string {
 	return "invalid token"
+}
+
+func (t *TranslatorEnAuth) PhoneNumberVerifyCodeSent() string {
+	return "phone number verification code sent"
+}
+
+func (t *TranslatorEnAuth) PhoneNumberVerifyCodeTooManyRequests(seconds int64) string {
+	return fmt.Sprintf("can't generate code Now, try %v seconds later", seconds)
 }
 
 func (t *TranslatorEnAuth) Unauthorized() string {

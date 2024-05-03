@@ -40,24 +40,22 @@ func (u Token) MarshalJSON() ([]byte, error) {
 }
 
 type user struct {
-	ID                   int32     `json:"id"`
-	PhoneNumber          string    `json:"phone_number"`
-	Email                string    `json:"email"`
-	Password             string    `json:"password"`
-	Avatar               string    `json:"avatar"`
-	FirstName            string    `json:"first_name"`
-	LastName             string    `json:"last_name"`
-	DisplayName          string    `json:"display_name"`
-	Gender               int32     `json:"gender"`
-	IsActive             bool      `json:"is_active"`
-	Registered           bool      `json:"registered"`
-	DeactivationReason   string    `json:"deactivation_reason"`
-	IsAdmin              bool      `json:"is_admin"`
-	OtpRemainingAttempts int32     `json:"otp_remaining_attempts"`
-	OtpCode              int32     `json:"otp_code"`
-	OtpDueDate           time.Time `json:"otp_due_date"`
-	IsSuperuser          bool      `json:"is_superuser"`
-	CreatedAt            time.Time `json:"created_at"`
+	ID                 int32     `json:"id"`
+	PhoneNumber        string    `json:"phone_number"`
+	Email              string    `json:"email"`
+	Password           string    `json:"password"`
+	Avatar             string    `json:"avatar"`
+	FirstName          string    `json:"first_name"`
+	LastName           string    `json:"last_name"`
+	DisplayName        string    `json:"display_name"`
+	Gender             int32     `json:"gender"`
+	IsActive           bool      `json:"is_active"`
+	Registered         bool      `json:"registered"`
+	DeactivationReason string    `json:"deactivation_reason"`
+	IsAdmin            bool      `json:"is_admin"`
+	Params             string    `json:"params"`
+	IsSuperuser        bool      `json:"is_superuser"`
+	CreatedAt          time.Time `json:"created_at"`
 }
 
 func (u User) MarshalJSON() ([]byte, error) {

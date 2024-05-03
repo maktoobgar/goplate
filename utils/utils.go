@@ -2,11 +2,13 @@ package utils
 
 import (
 	"bytes"
+	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"reflect"
 	g "service/global"
@@ -254,4 +256,18 @@ func EncodeId(id int32) string {
 	encodedId := strings.ReplaceAll(encoded[:11], "+", "-")
 	encodedId = strings.ReplaceAll(encodedId, "/", "_")
 	return encodedId
+}
+
+var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
+
+func GenerateVerificationCode(max int) string {
+	b := make([]byte, max)
+	n, err := io.ReadAtLeast(rand.Reader, b, max)
+	if n != max {
+		panic(err)
+	}
+	for i := 0; i < len(b); i++ {
+		b[i] = table[int(b[i])%len(table)]
+	}
+	return string(b)
 }

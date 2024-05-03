@@ -21,4 +21,8 @@ func AuthHTTP(app router.Party) {
 	authApi.Post("/refresh_token", auth_handlers.RefreshToken)
 
 	authApi.Post("/logout", auth_handlers.Logout)
+
+	authApi.Post("/request_verify_email", middlewares.Auth, auth_handlers.RequestVerifyEmail)
+
+	authApi.Post("/request_verify_phone_number", middlewares.Auth, auth_handlers.RequestVerifyPhoneNumber)
 }

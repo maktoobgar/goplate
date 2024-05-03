@@ -26,3 +26,6 @@ UPDATE users SET first_name = $1, last_name = $2, display_name = $3, gender = $4
 
 -- name: UpdateAvatar :one
 UPDATE users SET avatar = $1 WHERE id = $2 RETURNING *;
+
+-- name: UpdateUserParams :one
+UPDATE users SET params = $1 WHERE id = $2 RETURNING *;

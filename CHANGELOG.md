@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: added send verification request for phone number and email
 - 🎉 feat: logout added
 - 🎉 feat: refresh token route added
 - 🎉 feat: update avatar handler added + small changes

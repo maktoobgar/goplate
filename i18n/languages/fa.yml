@@ -16,6 +16,11 @@ Auth:
   WrongPasswordWithEmailPassword: "ایمیل یا پسورد وارد شده صحیح نمیباشد"
   Unauthorized: "احراز هویت نشده"
   InvalidToken: "توکن نامعتبر"
+  EmailNotFound: "ایمیل یافت نشد"
+  EmailVerifyCodeSent: "کد تایید ایمیل ارسال شد"
+  EmailVerifyCodeTooManyRequests: "برای درخواست تولید دوباره کد، {seconds:int64} ثانیه دیگر تلاش کنید"
+  PhoneNumberVerifyCodeSent: "کد تایید شماره تماس ارسال شد"
+  PhoneNumberVerifyCodeTooManyRequests: "برای درخواست تولید دوباره کد، {seconds:int64} ثانیه دیگر تلاش کنید"
 
 Users:
   UserNotFound: "کاربر یافت نشد"

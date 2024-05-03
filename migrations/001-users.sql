@@ -1,8 +1,8 @@
 -- +migrate Up
 CREATE TABLE "users" (
 	"id" serial NOT NULL UNIQUE,
-	"phone_number" varchar(16) NOT NULL UNIQUE,
-	"email" varchar(64) UNIQUE,
+	"phone_number" varchar(16) NOT NULL,
+	"email" varchar(64),
 	"password" varchar(256) NOT NULL,
 	"avatar" varchar(256),
 	"first_name" varchar(128),
@@ -14,9 +14,12 @@ CREATE TABLE "users" (
 	"registered" boolean NOT NULL DEFAULT FALSE,
 	"deactivation_reason" varchar(256),
 	"is_admin" boolean NOT NULL DEFAULT FALSE,
-	"otp_remaining_attempts" int NOT NULL DEFAULT 0,
-	"otp_code" int,
-	"otp_due_date" TIMESTAMPTZ,
+	-- These can be inside params:
+	-- 
+	-- "otp_remaining_attempts" int NOT NULL DEFAULT 0,
+	-- "otp_code" int,
+	-- "otp_due_date" TIMESTAMPTZ,
+	"params" varchar(512),
 	"is_superuser" boolean NOT NULL DEFAULT FALSE,
 	"created_at" TIMESTAMPTZ NOT NULL,
 	PRIMARY KEY("id")

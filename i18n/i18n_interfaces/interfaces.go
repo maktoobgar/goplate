@@ -12,7 +12,12 @@ type TranslatorI interface {
 }
 
 type TranslatorAuthI interface {
+	EmailNotFound() string
+	EmailVerifyCodeSent() string
+	EmailVerifyCodeTooManyRequests(seconds int64) string
 	InvalidToken() string
+	PhoneNumberVerifyCodeSent() string
+	PhoneNumberVerifyCodeTooManyRequests(seconds int64) string
 	Unauthorized() string
 	UserWithEmailNotFound() string
 	UserWithPhoneNumberNotFound() string

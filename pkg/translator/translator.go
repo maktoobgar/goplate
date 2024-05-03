@@ -218,7 +218,7 @@ func getWordsForEachLang(address string, words map[any]any, languages []string, 
 }
 
 func getInterfacesStructs(words map[any]any, wordsKeysInOrder []any, inputs map[any]any, structKey, structKeySimple string) (string, string) {
-	re, _ := regexp.Compile(`{(\w+):(int|string)}`)
+	re, _ := regexp.Compile(`{(\w+):(int|int8|int16|int32|int64|float64|float32|string)}`)
 	reWithoutType, _ := regexp.Compile(`{(\w+)}`)
 	oneKeyValueI := "	%s(%s) %s\n"
 	oneKeyValueFunc := "\nfunc (t *%s) %s(%s) %s {\n\treturn %s\n}\n"
@@ -379,7 +379,7 @@ func createTranslator(address string, languages []string, mainLang string) {
 
 func returnMethodInputs(words map[any]any) map[any]any {
 	output := make(map[any]any)
-	re, _ := regexp.Compile(`{(\w+):(int|float|string)}`)
+	re, _ := regexp.Compile(`{(\w+):(int|int8|int16|int32|int64|float64|float32|string)}`)
 	for word, value := range words {
 		inputs := make(map[any]any)
 		inputsInOrder := make([]string, 0)
