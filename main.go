@@ -66,7 +66,7 @@ func main() {
 				return
 			}
 			if len(functionName) > 0 {
-				generator.GenerateNewHandler(functionName, packageName, g.CFG.PWD)
+				generator.GenerateNewHandler(functionName, packageName, filepath.Join(g.CFG.PWD, "handlers"))
 				fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sGeneration Finished Successfully%s==%s\n", colors.Green, colors.Cyan, colors.Reset))
 			} else {
 				fmt.Println("flag required: -name")

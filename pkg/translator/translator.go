@@ -73,19 +73,19 @@ func getLanguages(address, mainLang string) []string {
 	langsPath := filepath.Join(address, "languages")
 	if _, err := os.Stat(langsPath); err != nil {
 		if err = os.Mkdir(langsPath, 509); err != nil {
-			log.Fatalf("translator: can't create folder '%s', err: %v", langsPath, err)
+			log.Panicf("translator: can't create folder '%s', err: %v", langsPath, err)
 		}
 	}
 
 	files, err := os.ReadDir(langsPath)
 	if err != nil {
-		log.Fatalf("translator: can't access folder '%s', err: %v", langsPath, err)
+		log.Panicf("translator: can't access folder '%s', err: %v", langsPath, err)
 	}
 
 	if len(files) == 0 {
 		enFileAddr := filepath.Join(langsPath, mainLang+".yml")
 		if _, err = os.Create(enFileAddr); err != nil {
-			log.Fatalf("translator: can't read file '%s', err: %v", enFileAddr, err)
+			log.Panicf("translator: can't read file '%s', err: %v", enFileAddr, err)
 		}
 	}
 
@@ -170,17 +170,17 @@ func getWords(address, mainLang string) (map[any]any, []any) {
 func _hasDeepSameKeys(words1, words2 map[any]any, lang string, beforeKeys string) {
 	for word, v := range words1 {
 		if _, ok := words2[word]; !ok {
-			log.Fatalf("_hasDeepSameKeys: word '%s' doesn't exist in '%s' language in '%s' keys deep", word, lang, beforeKeys)
+			log.Panicf("_hasDeepSameKeys: word '%s' doesn't exist in '%s' language in '%s' keys deep", word, lang, beforeKeys)
 		}
 		if v1, ok := v.(map[any]any); ok {
 			if v2, ok := words2[word].(map[any]any); ok {
 				_hasDeepSameKeys(v1, v2, lang, beforeKeys+"."+word.(string))
 			} else {
-				log.Fatalf("_hasDeepSameKeys: word '%s' must have a group of words but in '%s' language in '%s' keys deep it is just a string", word, lang, beforeKeys)
+				log.Panicf("_hasDeepSameKeys: word '%s' must have a group of words but in '%s' language in '%s' keys deep it is just a string", word, lang, beforeKeys)
 			}
 		} else if _, ok := v.(string); ok {
 			if _, ok := words2[word].(map[any]any); ok {
-				log.Fatalf("_hasDeepSameKeys: word '%s' must be a string but in '%s' language in '%s' keys deep it has a group of words", word, lang, beforeKeys)
+				log.Panicf("_hasDeepSameKeys: word '%s' must be a string but in '%s' language in '%s' keys deep it has a group of words", word, lang, beforeKeys)
 			}
 		}
 	}
@@ -317,13 +317,13 @@ func createInterfaces(address, interfaces string) {
 
 	file, err := os.Create(interfacePath)
 	if err != nil {
-		log.Fatalf("translator: error creating file '%s', err: %s\n", interfacePath, err)
+		log.Panicf("translator: error creating file '%s', err: %s\n", interfacePath, err)
 	}
 	defer file.Close()
 
 	_, err = file.WriteString(content)
 	if err != nil {
-		log.Fatalf("translator: failed to write to file '%s', err: %s\n", interfacePath, err)
+		log.Panicf("translator: failed to write to file '%s', err: %s\n", interfacePath, err)
 	}
 }
 
@@ -337,13 +337,13 @@ func createStructs(interfacePath, structs string, addImportFmt bool) {
 
 	file, err := os.Create(interfacePath)
 	if err != nil {
-		log.Fatalf("translator: error creating file '%s', err: %s\n", interfacePath, err)
+		log.Panicf("translator: error creating file '%s', err: %s\n", interfacePath, err)
 	}
 	defer file.Close()
 
 	_, err = file.WriteString(content)
 	if err != nil {
-		log.Fatalf("translator: failed to write to file '%s', err: %s\n", interfacePath, err)
+		log.Panicf("translator: failed to write to file '%s', err: %s\n", interfacePath, err)
 	}
 }
 
@@ -367,13 +367,13 @@ func createTranslator(address string, languages []string, mainLang string) {
 	content := fmt.Sprintf(translatorContent, langsString, mainLang, mainLang, elseIfBlock)
 	file, err := os.Create(interfacePath)
 	if err != nil {
-		log.Fatalf("translator: error creating file '%s', err: %s\n", interfacePath, err)
+		log.Panicf("translator: error creating file '%s', err: %s\n", interfacePath, err)
 	}
 	defer file.Close()
 
 	_, err = file.WriteString(content)
 	if err != nil {
-		log.Fatalf("translator: failed to write to file '%s', err: %s\n", interfacePath, err)
+		log.Panicf("translator: failed to write to file '%s', err: %s\n", interfacePath, err)
 	}
 }
 
@@ -406,14 +406,14 @@ func returnMethodInputs(words map[any]any) map[any]any {
 func GenerateCode(address, mainLang string) {
 	if _, err := os.Stat(address); err != nil {
 		if err = os.Mkdir(address, 509); err != nil {
-			log.Fatalf("translator: can't create folder '%s', err: %v", address, err)
+			log.Panicf("translator: can't create folder '%s', err: %v", address, err)
 		}
 	}
 
 	generatedFolder := filepath.Join(address, "i18n_interfaces")
 	if _, err := os.Stat(generatedFolder); err != nil {
 		if err = os.Mkdir(generatedFolder, 509); err != nil {
-			log.Fatalf("translator: can't create folder '%s', err: %v", generatedFolder, err)
+			log.Panicf("translator: can't create folder '%s', err: %v", generatedFolder, err)
 		}
 	}
 

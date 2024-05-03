@@ -9,9 +9,6 @@ import (
 	"context"
 	"database/sql"
 	"time"
-	"service/pkg/errors"
-	"service/global"
-	"service/i18n/i18n_interfaces"
 )
 
 const confirmEmail = `-- name: ConfirmEmail :one
@@ -19,7 +16,6 @@ UPDATE users SET email_verified = TRUE WHERE id = $1 RETURNING id, phone_number,
 `
 
 func (q *Queries) ConfirmEmail(ctx context.Context, id int32) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, confirmEmail, id)
 	var i User
 	err := row.Scan(
@@ -42,9 +38,6 @@ func (q *Queries) ConfirmEmail(ctx context.Context, id int32) (User, error) {
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -53,7 +46,6 @@ UPDATE users SET phone_number_verified = TRUE WHERE id = $1 RETURNING id, phone_
 `
 
 func (q *Queries) ConfirmPhoneNumber(ctx context.Context, id int32) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, confirmPhoneNumber, id)
 	var i User
 	err := row.Scan(
@@ -76,9 +68,6 @@ func (q *Queries) ConfirmPhoneNumber(ctx context.Context, id int32) (User, error
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -87,7 +76,6 @@ SELECT id, phone_number, phone_number_verified, email, email_verified, password,
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
@@ -110,9 +98,6 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (Use
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -121,7 +106,6 @@ SELECT id, phone_number, phone_number_verified, email, email_verified, password,
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, getUserById, id)
 	var i User
 	err := row.Scan(
@@ -144,9 +128,6 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -155,7 +136,6 @@ SELECT u.id, u.phone_number, u.phone_number_verified, u.email, u.email_verified,
 `
 
 func (q *Queries) GetUserWithTokenId(ctx context.Context, id int32) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, getUserWithTokenId, id)
 	var i User
 	err := row.Scan(
@@ -178,10 +158,53 @@ func (q *Queries) GetUserWithTokenId(ctx context.Context, id int32) (User, error
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users
+`
+
+func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.PhoneNumber,
+			&i.PhoneNumberVerified,
+			&i.Email,
+			&i.EmailVerified,
+			&i.Password,
+			&i.Avatar,
+			&i.FirstName,
+			&i.LastName,
+			&i.DisplayName,
+			&i.Gender,
+			&i.IsActive,
+			&i.Registered,
+			&i.DeactivationReason,
+			&i.IsAdmin,
+			&i.Params,
+			&i.IsSuperuser,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const loginUserWithEmail = `-- name: LoginUserWithEmail :one
@@ -189,7 +212,6 @@ SELECT id, phone_number, phone_number_verified, email, email_verified, password,
 `
 
 func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, loginUserWithEmail, email)
 	var i User
 	err := row.Scan(
@@ -212,9 +234,6 @@ func (q *Queries) LoginUserWithEmail(ctx context.Context, email sql.NullString) 
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -223,7 +242,6 @@ SELECT id, phone_number, phone_number_verified, email, email_verified, password,
 `
 
 func (q *Queries) LoginUserWithPhoneNumber(ctx context.Context, phoneNumber string) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, loginUserWithPhoneNumber, phoneNumber)
 	var i User
 	err := row.Scan(
@@ -246,9 +264,6 @@ func (q *Queries) LoginUserWithPhoneNumber(ctx context.Context, phoneNumber stri
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -270,7 +285,6 @@ type RegisterUserParams struct {
 }
 
 func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, registerUser,
 		arg.PhoneNumber,
 		arg.Email,
@@ -299,9 +313,6 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -315,7 +326,6 @@ type UpdateAvatarParams struct {
 }
 
 func (q *Queries) UpdateAvatar(ctx context.Context, arg UpdateAvatarParams) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, updateAvatar, arg.Avatar, arg.ID)
 	var i User
 	err := row.Scan(
@@ -338,9 +348,6 @@ func (q *Queries) UpdateAvatar(ctx context.Context, arg UpdateAvatarParams) (Use
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -357,7 +364,6 @@ type UpdateMeParams struct {
 }
 
 func (q *Queries) UpdateMe(ctx context.Context, arg UpdateMeParams) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, updateMe,
 		arg.FirstName,
 		arg.LastName,
@@ -386,9 +392,6 @@ func (q *Queries) UpdateMe(ctx context.Context, arg UpdateMeParams) (User, error
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -402,7 +405,6 @@ type UpdateUserParamsParams struct {
 }
 
 func (q *Queries) UpdateUserParams(ctx context.Context, arg UpdateUserParamsParams) (User, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, updateUserParams, arg.Params, arg.ID)
 	var i User
 	err := row.Scan(
@@ -425,8 +427,5 @@ func (q *Queries) UpdateUserParams(ctx context.Context, arg UpdateUserParamsPara
 		&i.IsSuperuser,
 		&i.CreatedAt,
 	)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }

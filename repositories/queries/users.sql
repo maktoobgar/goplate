@@ -35,3 +35,6 @@ UPDATE users SET phone_number_verified = TRUE WHERE id = $1 RETURNING *;
 
 -- name: ConfirmEmail :one
 UPDATE users SET email_verified = TRUE WHERE id = $1 RETURNING *;
+
+-- name: ListUsers :many
+SELECT * FROM users;

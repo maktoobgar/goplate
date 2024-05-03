@@ -8,10 +8,6 @@ package repositories
 import (
 	"context"
 	"time"
-	"service/pkg/errors"
-	"service/global"
-	"service/i18n/i18n_interfaces"
-	"database/sql"
 )
 
 const createToken = `-- name: CreateToken :one
@@ -29,13 +25,9 @@ type CreateTokenParams struct {
 }
 
 func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, createToken, arg.UserID, arg.CreatedAt)
 	var i Token
 	err := row.Scan(&i.ID, &i.UserID, &i.CreatedAt)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }
 
@@ -53,12 +45,8 @@ SELECT id, user_id, created_at FROM tokens WHERE id = $1
 `
 
 func (q *Queries) GetToken(ctx context.Context, id int32) (Token, error) {
-	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	row := q.db.QueryRowContext(ctx, getToken, id)
 	var i Token
 	err := row.Scan(&i.ID, &i.UserID, &i.CreatedAt)
-	if err != nil && err != sql.ErrNoRows {
-		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
-	}
 	return i, err
 }

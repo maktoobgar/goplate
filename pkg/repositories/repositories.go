@@ -21,6 +21,17 @@ import (
 %s
 `
 
+func reformatFile(address string) {
+	execOutput := exec.Command("gofmt", "-w", address)
+	err := execOutput.Run()
+	if execOutput.Err != nil || err != nil {
+		if execOutput.Err != nil {
+			err = execOutput.Err
+		}
+		log.Panicf("repositories: can't execute '%v', err: %v", strings.ReplaceAll(strings.ReplaceAll(fmt.Sprint(execOutput.Args), "[", ""), "]", ""), err)
+	}
+}
+
 func GenerateRepositories(address string) {
 	// Execute sqlc
 	execOutput := exec.Command("sqlc", "generate", fmt.Sprintf("-f=%s", filepath.Join(address, "sqlc.yml")))
@@ -29,19 +40,19 @@ func GenerateRepositories(address string) {
 		if execOutput.Err != nil {
 			err = execOutput.Err
 		}
-		log.Fatalf("repositories: can't execute '%v', err: %v", strings.ReplaceAll(strings.ReplaceAll(fmt.Sprint(execOutput.Args), "[", ""), "]", ""), err)
+		log.Panicf("repositories: can't execute '%v', err: %v", strings.ReplaceAll(strings.ReplaceAll(fmt.Sprint(execOutput.Args), "[", ""), "]", ""), err)
 	}
 
 	{ // query.sql.go file
 		// Read query.sql.go file
 		dir, err := os.Open(address)
 		if err != nil {
-			log.Fatalf("repositories: can't open folder '%s', err: %v", address, err)
+			log.Panicf("repositories: can't open folder '%s', err: %v", address, err)
 		}
 		defer dir.Close()
 		files, err := dir.Readdir(-1)
 		if err != nil {
-			log.Fatalf("repositories: can't read folder content '%s', err: %v", address, err)
+			log.Panicf("repositories: can't read folder content '%s', err: %v", address, err)
 		}
 		// Iterate over all files which has generated queries and mutate their functions
 		for _, file := range files {
@@ -51,42 +62,45 @@ func GenerateRepositories(address string) {
 			queriesAddress := filepath.Join(address, file.Name())
 			content, err := os.ReadFile(queriesAddress)
 			if err != nil {
-				log.Fatalf("repositories: can't read file '%s', err: %v", queriesAddress, err)
+				log.Panicf("repositories: can't read file '%s', err: %v", queriesAddress, err)
 			}
 
 			// Import adding part
 			re, _ := regexp.Compile(`import\s*\((\s*((\w+ \"(\w|\/)*\")|(\"(\w|\/)*\")))+\s*\)`)
 			importContent := strings.Replace(re.FindString(string(content)), ")", "", 1)
 			if !strings.Contains(importContent, "\"service/pkg/errors\"") {
-				importContent += "\t\"service/pkg/errors\"\n"
+				importContent += "\"service/pkg/errors\"\n"
 			}
 			if !strings.Contains(importContent, "\"service/global\"") {
-				importContent += "\t\"service/global\"\n"
+				importContent += "\"service/global\"\n"
 			}
 			if !strings.Contains(importContent, "\"service/i18n/i18n_interfaces\"") {
-				importContent += "\t\"service/i18n/i18n_interfaces\"\n"
+				importContent += "\"service/i18n/i18n_interfaces\"\n"
 			}
 			if !strings.Contains(importContent, "\"database/sql\"") {
-				importContent += "\t\"database/sql\"\n"
+				importContent += "\"database/sql\"\n"
 			}
 			importContent += ")"
 			output := re.ReplaceAllString(string(content), importContent)
 			file, err := os.Create(queriesAddress)
 			if err != nil {
-				log.Fatalf("repositories: error opening file '%s', err: %s\n", queriesAddress, err)
+				log.Panicf("repositories: error opening file '%s', err: %s\n", queriesAddress, err)
 			}
 			defer file.Close()
 
 			// Error panic before return statement
-			output = strings.ReplaceAll(output, ")\n\treturn i, err", ")\n\tif err != nil && err != sql.ErrNoRows {\n\t\tpanic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))\n\t}\n\treturn i, err")
+			output = strings.ReplaceAll(output, ")\n\treturn i, err", ")\nif err != nil && err != sql.ErrNoRows {panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))}\nreturn i, err")
+			output = strings.ReplaceAll(output, "return nil, err", "panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))")
 
 			// Add translator to the start of it
-			output = strings.ReplaceAll(output, "{\n\trow", "{\n\ttranslator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)\n\trow")
+			output = strings.ReplaceAll(output, "{\n\trow", "{translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI);row")
 
 			_, err = file.WriteString(output)
 			if err != nil {
-				log.Fatalf("repositories: failed to write to file '%s', err: %s\n", queriesAddress, err)
+				log.Panicf("repositories: failed to write to file '%s', err: %s\n", queriesAddress, err)
 			}
+
+			reformatFile(queriesAddress)
 		}
 	}
 
@@ -94,7 +108,7 @@ func GenerateRepositories(address string) {
 		decoderPath := filepath.Join(address, "decoder.go")
 		content, err := os.ReadFile(filepath.Join(address, "models.go"))
 		if err != nil {
-			log.Fatalf("repositories: can't read file '%s', err: %v", content, err)
+			log.Panicf("repositories: can't read file '%s', err: %v", content, err)
 		}
 
 		// `type \w* struct {(\s|\d|\w|\:|\"|`|\.)*}`
@@ -127,23 +141,16 @@ func GenerateRepositories(address string) {
 
 		file, err := os.Create(decoderPath)
 		if err != nil {
-			log.Fatalf("repositories: error opening file '%s', err: %s\n", decoderPath, err)
+			log.Panicf("repositories: error opening file '%s', err: %s\n", decoderPath, err)
 		}
 		defer file.Close()
 
 		_, err = file.WriteString(output)
 		if err != nil {
-			log.Fatalf("repositories: failed to write to file '%s', err: %s\n", decoderPath, err)
+			log.Panicf("repositories: failed to write to file '%s', err: %s\n", decoderPath, err)
 		}
 
 		// Reformat the file
-		execOutput := exec.Command("gofmt", "-w", decoderPath)
-		err = execOutput.Run()
-		if execOutput.Err != nil || err != nil {
-			if execOutput.Err != nil {
-				err = execOutput.Err
-			}
-			log.Fatalf("repositories: can't execute '%v', err: %v", strings.ReplaceAll(strings.ReplaceAll(fmt.Sprint(execOutput.Args), "[", ""), "]", ""), err)
-		}
+		reformatFile(decoderPath)
 	}
 }

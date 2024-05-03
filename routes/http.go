@@ -5,6 +5,7 @@ import (
 	"service/handlers"
 	"service/handlers/error_handlers"
 	"service/middlewares/extra_middlewares"
+	admin_users_routes "service/routes/admin"
 	"strings"
 	"time"
 
@@ -64,4 +65,5 @@ func HTTP(app *iris.Application) {
 
 	AuthHTTP(basicApi)
 	UsersHTTP(basicApi)
+	admin_users_routes.AuthHTTP(basicApi)
 }

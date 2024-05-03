@@ -5,8 +5,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/golodash/godash/strings"
+	godashStrings "github.com/golodash/godash/strings"
 )
 
 const handlerStructure = `package %s
@@ -40,29 +41,41 @@ func %s(ctx iris.Context) {
 `
 
 func GenerateNewHandler(name, packageName, address string) {
-	var fileAddress string
-	if len(packageName) > 0 {
-		packageName = strings.SnakeCase(packageName) + "_handlers"
-	} else {
-		packageName = "handlers"
-	}
-	if packageName != "handlers" {
-		fileAddress = filepath.Join(address, "handlers", packageName, strings.SnakeCase(name)+".go")
-	} else {
-		fileAddress = filepath.Join(address, packageName, strings.SnakeCase(name)+".go")
+	packageNames := strings.Split(packageName, ".")
+	if len(packageNames) > 1 {
+		firstAddress := godashStrings.SnakeCase(packageNames[0])
+		address = filepath.Join(address, firstAddress+"_handlers")
+		packageNames = packageNames[1:]
+		if _, err := os.Stat(address); os.IsNotExist(err) {
+			if err = os.MkdirAll(address, os.ModePerm); err != nil {
+				log.Panicf("generator: error full creating folder '%s', err: %s\n", address, err)
+			}
+		}
+		GenerateNewHandler(name, strings.Join(packageNames, "."), address)
+		return
 	}
 
-	name = strings.PascalCase(name)
-	packageName = strings.SnakeCase(packageName)
+	packageName = godashStrings.SnakeCase(packageName + "_handlers")
+	address = filepath.Join(address, packageName)
+
+	if _, err := os.Stat(address); os.IsNotExist(err) {
+		if err = os.MkdirAll(address, os.ModePerm); err != nil {
+			log.Panicf("generator: error full creating folder '%s', err: %s\n", address, err)
+		}
+	}
+
+	fileAddress := filepath.Join(address, godashStrings.SnakeCase(name)+".go")
+
+	name = godashStrings.PascalCase(name)
 	content := fmt.Sprintf(handlerStructure, packageName, name, name, name, name, name, name)
 
 	file, err := os.Create(fileAddress)
 	if err != nil {
-		log.Fatalf("generator: error opening file '%s', err: %s\n", fileAddress, err)
+		log.Panicf("generator: error opening file '%s', err: %s\n", fileAddress, err)
 	}
 
 	_, err = file.WriteString(content)
 	if err != nil {
-		log.Fatalf("generator: failed to write to file '%s', err: %s\n", fileAddress, err)
+		log.Panicf("generator: failed to write to file '%s', err: %s\n", fileAddress, err)
 	}
 }

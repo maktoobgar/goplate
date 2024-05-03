@@ -88,7 +88,7 @@ func SendMessage(ctx iris.Context, message string, data ...map[string]any) {
 	sendIfCtxNotCancelled(ctx, -1, &output)
 }
 
-func SendPage[T any](ctx iris.Context, dataCount int64, perPage int, page int, data []T) {
+func SendPage[T any](ctx iris.Context, dataCount int, perPage int, page int, data []T) {
 	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
 	pagesCount := CalculatePagesCount(dataCount, perPage)
 	if page > pagesCount {
@@ -97,7 +97,8 @@ func SendPage[T any](ctx iris.Context, dataCount int64, perPage int, page int, d
 	dataLen := len(data)
 
 	for _, singleData := range data {
-		if reflectValue := reflect.ValueOf(singleData).Addr(); reflectValue.IsValid() && reflectValue.Elem().Kind() == reflect.Struct {
+		singleDataPoint := &singleData
+		if reflectValue := reflect.ValueOf(singleDataPoint); reflectValue.IsValid() && reflectValue.Elem().Kind() == reflect.Struct {
 			if method := reflectValue.MethodByName("Reformat"); method.IsValid() {
 				method.Call([]reflect.Value{})
 			}
@@ -114,15 +115,15 @@ func SendPage[T any](ctx iris.Context, dataCount int64, perPage int, page int, d
 	})
 }
 
-func CalculatePagesCount(dataCount int64, perPage int) int {
-	pagesCount := int64(-1)
-	if dataCount%int64(perPage) == 0 {
-		pagesCount = dataCount / int64(perPage)
+func CalculatePagesCount(dataCount int, perPage int) int {
+	pagesCount := -1
+	if dataCount%int(perPage) == 0 {
+		pagesCount = dataCount / perPage
 	} else {
-		pagesCount = (dataCount / int64(perPage)) + 1
+		pagesCount = (dataCount / perPage) + 1
 	}
 
-	// If there is no date, just return 1 page so that NotFound do not get returned
+	// If there is no data, just return 1 page so that NotFound do not get returned
 	if int(pagesCount) == 0 {
 		return 1
 	}

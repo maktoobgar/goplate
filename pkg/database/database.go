@@ -59,7 +59,7 @@ func New(db Database, debug bool) (RelationalDatabaseFunction, error) {
 	case "mssql":
 		config = fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;", db.Host, db.Username, db.Password, db.Port, db.DbName)
 	default:
-		log.Fatalf("db: unrecognizable database type `%s`", db.Type)
+		log.Panicf("db: unrecognizable database type `%s`", db.Type)
 	}
 
 	dbFunc := connectionCreatorFunction(db.Type, config)
