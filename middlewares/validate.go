@@ -6,6 +6,7 @@ import (
 	"reflect"
 	g "service/global"
 	"service/pkg/errors"
+	"service/utils"
 
 	"service/i18n/i18n_interfaces"
 
@@ -30,10 +31,7 @@ func Validate(validator galidator.Validator, inputInstance any) iris.Handler {
 		}
 
 		// Validate and translate error messages if errors exist
-		errs := validator.Validate(req, galidator.Translator(func(s string) string { return translator.Galidator().Translate(s) }))
-		if errs != nil {
-			panic(errors.New(errors.InvalidStatus, translator.StatusCodes().BodyNotProvidedProperly(), "", errs))
-		}
+		utils.Validate(ctx, req, validator)
 
 		// If we come this far, data is valid, so record it in context
 		ctx.Values().Set(g.RequestBody, req)

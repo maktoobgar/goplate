@@ -7,7 +7,9 @@ import (
 	"github.com/kataras/iris/v12/core/router"
 )
 
-func AuthHTTP(app router.Party) {
+func AdminHTTP(app router.Party) {
 	users := app.Party("/admin/users", middlewares.Auth)
-	users.Get("/", admin_users_handlers.ListUsers)
+
+	adminListUsers := middlewares.ParamsValidator(admin_users_handlers.ListUsersParams{}, admin_users_handlers.DefaultListUsersParams, admin_users_handlers.ListUsersParamsValidator)
+	users.Get("/", adminListUsers, admin_users_handlers.ListUsers)
 }

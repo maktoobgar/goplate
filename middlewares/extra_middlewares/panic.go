@@ -59,7 +59,8 @@ func Panic(ctx iris.Context) {
 					if g.CFG.Debug {
 						log.Println(err)
 					}
-					ctx.StopWithJSON(res.Code, res)
+					ctx.StatusCode(res.Code)
+					ctx.JSON(res)
 				} else {
 					res := PanicResponse{
 						Message: message,
@@ -69,7 +70,8 @@ func Panic(ctx iris.Context) {
 					if g.CFG.Debug {
 						log.Println(err)
 					}
-					ctx.StopWithJSON(code, res)
+					ctx.StatusCode(code)
+					ctx.JSON(res)
 				}
 			} else {
 				stack := string(debug.Stack())
@@ -79,7 +81,8 @@ func Panic(ctx iris.Context) {
 					Code:    http.StatusInternalServerError,
 					Errors:  nil,
 				}
-				ctx.StopWithJSON(res.Code, res)
+				ctx.StatusCode(res.Code)
+				ctx.JSON(res)
 			}
 		}
 		closedWriter = true

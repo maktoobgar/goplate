@@ -33,7 +33,6 @@ func UpdateMePatch(ctx iris.Context) {
 	queries := repositories.New(db)
 	_, _, _, _, _ = db, req, user, translator, queries
 
-	user, _ = queries.GetUserById(ctx, user.ID)
 	updateParams := copier.Copy(&repositories.UpdateMeParams{ID: user.ID}, &user)
 	user, _ = queries.UpdateMe(ctx, copier.Copy(&updateParams, req))
 	utils.SendJson(ctx, copier.Copy(&MeRes{}, &user))

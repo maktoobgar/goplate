@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: finally added list users
 - 🎉 feat: attempt to create pagination
 - 🎉 feat: added verify_email + verify_phone_number routes
 - 🎉 feat: added send verification request for phone number and email

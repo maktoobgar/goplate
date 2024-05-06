@@ -17,6 +17,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/golodash/galidator"
 	"github.com/kataras/iris/v12"
 )
 
@@ -88,9 +89,19 @@ func SendMessage(ctx iris.Context, message string, data ...map[string]any) {
 	sendIfCtxNotCancelled(ctx, -1, &output)
 }
 
-func SendPage[T any](ctx iris.Context, dataCount int, perPage int, page int, data []T) {
+func GetTotalCount[T any](data []T) int32 {
+	for _, singleData := range data {
+		if totalCountValue := reflect.ValueOf(singleData).FieldByName("TotalCount"); totalCountValue.IsValid() {
+			return int32(totalCountValue.Int())
+		}
+	}
+
+	return 0
+}
+
+func SendPage[T any](ctx iris.Context, totalCount int32, perPage int32, page int32, data []T) {
 	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
-	pagesCount := CalculatePagesCount(dataCount, perPage)
+	pagesCount := CalculatePagesCount(totalCount, perPage)
 	if page > pagesCount {
 		panic(errors.New(errors.NotFoundStatus, translator.StatusCodes().PageNotFound(), fmt.Sprintf("page %d requested but we have %d pages", page, pagesCount)))
 	}
@@ -109,25 +120,25 @@ func SendPage[T any](ctx iris.Context, dataCount int, perPage int, page int, dat
 		"page":        page,
 		"per_page":    perPage,
 		"pages_count": pagesCount,
-		"all_count":   dataCount,
+		"total_count": totalCount,
 		"count":       dataLen,
 		"data":        data,
 	})
 }
 
-func CalculatePagesCount(dataCount int, perPage int) int {
-	pagesCount := -1
-	if dataCount%int(perPage) == 0 {
+func CalculatePagesCount(dataCount int32, perPage int32) int32 {
+	var pagesCount int32 = -1
+	if dataCount%perPage == 0 {
 		pagesCount = dataCount / perPage
 	} else {
 		pagesCount = (dataCount / perPage) + 1
 	}
 
 	// If there is no data, just return 1 page so that NotFound do not get returned
-	if int(pagesCount) == 0 {
+	if pagesCount == 0 {
 		return 1
 	}
-	return int(pagesCount)
+	return pagesCount
 }
 
 func Min(v1 int, v2 int) int {
@@ -148,86 +159,10 @@ func PrettyJsonBytes(data []byte) string {
 	return prettyJSON.String()
 }
 
-func CastParams(params interface{}, ctx iris.Context, defaultValues ...interface{}) {
-	paramsValue := reflect.ValueOf(params)
-	paramsType := reflect.TypeOf(params)
-	for paramsType.Kind() == reflect.Ptr {
-		paramsValue = paramsValue.Elem()
-		paramsType = paramsValue.Type()
-	}
-
-	var defaults interface{} = nil
-	var defaultsValue reflect.Value
-	if len(defaultValues) > 0 {
-		defaults = defaultValues[0]
-		defaultsValue = reflect.ValueOf(defaults)
-	}
-
-	for i := 0; i < paramsValue.NumField(); i++ {
-		elemType := paramsType.Field(i)
-		elemValue := paramsValue.Field(i)
-		isPointer := false
-		exactElemType := elemType.Type
-		if exactElemType.Kind() == reflect.Ptr {
-			isPointer = true
-			exactElemType = elemType.Type.Elem()
-		}
-		if elemType.IsExported() {
-			var tag = elemType.Tag.Get("json")
-			var value interface{} = nil
-			switch exactElemType.Kind() {
-			case reflect.Bool:
-				if defaults != nil {
-					value = ctx.URLParamBoolDefault(tag, defaultsValue.FieldByName(elemType.Name).Bool())
-					break
-				}
-				if urlParamDoesNotExist := ctx.URLParamExists(tag); urlParamDoesNotExist {
-					value, _ = ctx.URLParamBool(tag)
-				}
-			case reflect.Float64:
-				if defaults != nil {
-					value = ctx.URLParamFloat64Default(tag, defaultsValue.FieldByName(elemType.Name).Float())
-					break
-				}
-				if urlParamDoesNotExist := ctx.URLParamExists(tag); urlParamDoesNotExist {
-					value, _ = ctx.URLParamFloat64(tag)
-				}
-			case reflect.Int:
-				if defaults != nil {
-					value = ctx.URLParamIntDefault(tag, int(defaultsValue.FieldByName(elemType.Name).Int()))
-					break
-				}
-				if urlParamDoesNotExist := ctx.URLParamExists(tag); urlParamDoesNotExist {
-					value, _ = ctx.URLParamInt(tag)
-				}
-			case reflect.Int64:
-				if defaults != nil {
-					value = ctx.URLParamInt64Default(tag, defaultsValue.FieldByName(elemType.Name).Int())
-					break
-				}
-				if urlParamDoesNotExist := ctx.URLParamExists(tag); urlParamDoesNotExist {
-					value, _ = ctx.URLParamInt64(tag)
-				}
-			case reflect.String:
-				if defaults != nil {
-					value = ctx.URLParamDefault(tag, defaultsValue.FieldByName(elemType.Name).String())
-					break
-				}
-				if urlParamDoesNotExist := ctx.URLParamExists(tag); urlParamDoesNotExist {
-					value = ctx.URLParam(tag)
-				}
-			}
-			valueValue := reflect.ValueOf(value)
-			if valueValue.IsValid() {
-				if isPointer {
-					pointerToValue := reflect.New(exactElemType)
-					pointerToValue.Elem().Set(reflect.ValueOf(value))
-					elemValue.Set(pointerToValue)
-				} else {
-					elemValue.Set(valueValue)
-				}
-			}
-		}
+func Validate(ctx iris.Context, data any, validator galidator.Validator) {
+	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	if errs := validator.Validate(data, func(s string) string { return translator.Galidator().Translate(s) }); errs != nil {
+		panic(errors.New(errors.InvalidStatus, translator.StatusCodes().BodyNotProvidedProperly(), "", errs))
 	}
 }
 

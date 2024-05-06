@@ -15,9 +15,6 @@ import (
 
 // Applies all necessary middlewares
 func addBasicMiddlewares(app *iris.Application) {
-	// Copression
-	app.UseRouter(iris.Compression)
-
 	// Add Cors middleware
 	c := cors.New(cors.Options{
 		AllowedOrigins:   strings.Split(g.CFG.AllowOrigins, ","),
@@ -65,5 +62,5 @@ func HTTP(app *iris.Application) {
 
 	AuthHTTP(basicApi)
 	UsersHTTP(basicApi)
-	admin_users_routes.AuthHTTP(basicApi)
+	admin_users_routes.AdminHTTP(basicApi)
 }

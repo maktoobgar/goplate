@@ -52,11 +52,11 @@ const (
 
 	RequestBody = "RequestBody"
 	DbInstance  = "DbInstance"
+	Params      = "Params"
 	UserKey     = "User"
 	JobKey      = "Job"
 
 	// Maximum File sizes (in KB)
-
 	MaximumAvatarPicSize   = int64(500 * 1024)  // 500 KB
 	MaximumCertificateSize = int64(5000 * 1024) // 5000 KB(5 MB)
 
