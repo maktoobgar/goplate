@@ -1,0 +1,277 @@
+{
+	"basePath": "{{.BasePath}}",
+	"components": {
+		"securitySchemes": {
+			"Auth": {
+				"bearerFormat": "JWT",
+				"scheme": "bearer",
+				"type": "http"
+			}
+		}
+	},
+	"definitions": {
+		"HelloRes": {
+			"properties": {
+				"message": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "HelloRes"
+			}
+		},
+		"LoginWithEmailReq": {
+			"properties": {
+				"password": {
+					"type": "string"
+				},
+				"username": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "LoginWithEmailReq"
+			}
+		},
+		"LoginWithEmailRes": {
+			"properties": {
+				"access_token": {
+					"type": "string"
+				},
+				"refresh_token": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "LoginWithEmailRes"
+			}
+		},
+		"LoginWithPhoneReq": {
+			"properties": {
+				"password": {
+					"type": "string"
+				},
+				"username": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "LoginWithPhoneReq"
+			}
+		},
+		"LoginWithPhoneRes": {
+			"properties": {
+				"access_token": {
+					"type": "string"
+				},
+				"refresh_token": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "LoginWithPhoneRes"
+			}
+		},
+		"RefreshTokenRes": {
+			"properties": {
+				"access_token": {
+					"type": "string"
+				},
+				"refresh_token": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "RefreshTokenRes"
+			}
+		},
+		"RegisterReq": {
+			"properties": {
+				"display_name": {
+					"type": "string"
+				},
+				"email": {
+					"type": "string"
+				},
+				"password": {
+					"type": "string"
+				},
+				"phone_number": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "RegisterReq"
+			}
+		},
+		"RegisterRes": {
+			"properties": {
+				"access_token": {
+					"type": "string"
+				},
+				"refresh_token": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "RegisterRes"
+			}
+		}
+	},
+	"host": "{{.Host}}",
+	"info": {
+		"contact": {
+			"email": "mahmoodh1378@gmail.com"
+		},
+		"description": "{{escape .Description}}",
+		"title": "{{.Title}}",
+		"version": "{{.Version}}"
+	},
+	"paths": {
+		"/": {
+			"get": {
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/HelloRes"
+						}
+					}
+				},
+				"summary": "Simple hello world",
+				"tags": [
+					"General"
+				]
+			}
+		},
+		"/auth/login_with_email": {
+			"post": {
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/LoginWithEmailReq"
+						}
+					}
+				],
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/LoginWithEmailRes"
+						}
+					}
+				},
+				"summary": "Login with email",
+				"tags": [
+					"Auth"
+				]
+			}
+		},
+		"/auth/login_with_phone": {
+			"post": {
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/LoginWithPhoneReq"
+						}
+					}
+				],
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/LoginWithPhoneRes"
+						}
+					}
+				},
+				"summary": "Login with phone number",
+				"tags": [
+					"Auth"
+				]
+			}
+		},
+		"/auth/refresh_token": {
+			"post": {
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/RefreshTokenRes"
+						}
+					}
+				},
+				"security": [
+					{
+						"Authorization": []
+					}
+				],
+				"summary": "Refreshs token when refresh token is in the header instead of access token",
+				"tags": [
+					"Auth"
+				]
+			}
+		},
+		"/auth/register": {
+			"post": {
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/RegisterReq"
+						}
+					}
+				],
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/RegisterRes"
+						}
+					}
+				},
+				"summary": "Users register from here",
+				"tags": [
+					"Auth"
+				]
+			}
+		}
+	},
+	"schemes": [
+		"http",
+		"https"
+	],
+	"securityDefinitions": {
+		"Authorization": {
+			"in": "header",
+			"name": "Authorization",
+			"type": "apiKey"
+		}
+	},
+	"swagger": "2.0"
+}

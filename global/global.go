@@ -36,6 +36,9 @@ var Version string
 //go:embed name
 var Name string
 
+//go:embed description
+var Description string
+
 const (
 	// Header
 	AccessToken  = "Authorization"

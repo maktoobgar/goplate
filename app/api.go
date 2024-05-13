@@ -1,17 +1,22 @@
 package app
 
 import (
+	"path/filepath"
 	g "service/global"
+	"service/pkg/api"
 	"service/routes"
 
 	"github.com/kataras/iris/v12"
 )
 
-func API() {
+func API(justReturn ...bool) *iris.Application {
+	run := len(justReturn) == 0 || !justReturn[0]
 	// Initialize all
 	InitializeService()
 	// Print Info
-	Info()
+	if run {
+		Info()
+	}
 
 	app := iris.New()
 	app.Configure(iris.WithoutStartupLog)
@@ -22,5 +27,5 @@ func API() {
 
 	runCronJobs()
 
-	app.Listen(g.CFG.Gateway.IP + ":" + g.CFG.Gateway.Port)
+	return api.Run(app, g.CFG.Gateway.IP, g.CFG.Gateway.Port, filepath.Join(g.CFG.PWD, "docs"))
 }

@@ -6,7 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"service/app"
+	_ "service/docs"
 	g "service/global"
+	"service/pkg/api"
 	"service/pkg/colors"
 	"service/pkg/generator"
 	"service/pkg/repositories"
@@ -56,6 +58,10 @@ func main() {
 			app.InitializeService()
 			app.DemigrateOneChange()
 			fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sDemigration Finished Successfully%s==%s\n", colors.Green, colors.Cyan, colors.Reset))
+		case "docs":
+			api.Generate = true
+			app.API(true)
+			fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sGenerating Docs Finished Successfully%s==%s\n", colors.Green, colors.Cyan, colors.Reset))
 		case "sqlc":
 			repositories.GenerateRepositories(filepath.Join(g.CFG.PWD, "repositories"))
 			fmt.Println(colors.Cyan, fmt.Sprintf("\n==%sRepositories Generated Successfully%s==%s\n", colors.Green, colors.Cyan, colors.Reset))

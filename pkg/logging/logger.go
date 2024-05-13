@@ -144,27 +144,26 @@ func createAddress(address string) error {
 	addrSep = "/"
 	createIfDoesNotExist := func(addr *string) error {
 		if _, err := os.Stat(*addr); os.IsNotExist(err) {
-			var cmd *exec.Cmd
-
 			// Create folders
 			if runtime.GOOS == "linux" {
-				cmd = exec.Command("sudo", "mkdir", *addr)
-				if _, err = cmd.Output(); err != nil {
-					cmd = exec.Command("mkdir", *addr)
+				if _, err = exec.Command("sudo", "mkdir", *addr).Output(); err != nil {
+					if _, err = exec.Command("mkdir", *addr).Output(); err != nil {
+						return err
+					}
 				}
 			} else {
-				cmd = exec.Command("mkdir", *addr)
-			}
-
-			if _, err := cmd.Output(); err != nil {
-				return err
+				if _, err = exec.Command("mkdir", *addr).Output(); err != nil {
+					return err
+				}
 			}
 
 			// Change folders owners (just for linux users)
+			var cmd *exec.Cmd
 			if runtime.GOOS == "linux" {
 				cmd = exec.Command("whoami")
 				whoAmIByte, err := cmd.Output()
 				whoAmI := strings.Replace(string(whoAmIByte), "\n", "", -1)
+				fmt.Println(whoAmI)
 
 				if err != nil {
 					return err

@@ -5,12 +5,16 @@ import (
 	"service/handlers"
 	"service/handlers/error_handlers"
 	"service/middlewares/extra_middlewares"
+	"service/pkg/api"
 	admin_users_routes "service/routes/admin"
 	"strings"
 	"time"
 
+	"github.com/kataras/iris/v12/context"
+
 	"github.com/kataras/iris/v12"
 	"github.com/rs/cors"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // Applies all necessary middlewares
@@ -48,16 +52,18 @@ func HTTP(app *iris.Application) {
 	// More basic
 	staticFiles := app.Party("/")
 
-	basicApi.Get("/", handlers.Hello)
+	api.Get(basicApi, "/", []context.Handler{handlers.Hello}, &handlers.HelloRes{}, api.Setting{Summary: "Simple hello world"})
+
+	// Activate Swagger
+	basicApi.Get("/swagger/{any}", func(ctx *context.Context) {
+		httpSwagger.Handler(
+			httpSwagger.URL("doc.json"), //The url pointing to API definition
+		)(ctx.ResponseWriter(), ctx.Request())
+	})
 
 	{ //* serving static files
 		statics := staticFiles.Party("/")
 		statics.HandleDir(g.MediaServePath, iris.Dir(g.Media.GetAddress()))
-	}
-
-	{ //* /api
-		api := basicApi.Party("/api")
-		api.Get("/", handlers.Hello)
 	}
 
 	AuthHTTP(basicApi)

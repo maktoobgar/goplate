@@ -37,6 +37,7 @@ func Info() {
 	} else {
 		fmt.Printf("Debug:\t\t\t%s%v%s\n", colors.Green, g.CFG.Debug, colors.Reset)
 	}
+	fmt.Printf("Documentation:\t\t%s%s/swagger/index.html%s\n", colors.Green, g.CFG.Domain, colors.Reset)
 	fmt.Printf("Address:\t\thttp://%s:%s\n", g.CFG.Gateway.IP, g.CFG.Gateway.Port)
 	fmt.Printf("Allowed Origins:\t%v\n", g.CFG.AllowOrigins)
 	if g.CFG.AllowHeaders != "" {

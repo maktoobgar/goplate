@@ -5,7 +5,7 @@ import db "service/pkg/database"
 type (
 	Config struct {
 		Logging               Logging      `yaml:"logging"`
-		Language              Language     `yaml:language`
+		Language              Language     `yaml:"language"`
 		Gateway               Microservice `yaml:"gateway"`
 		Debug                 bool         `yaml:"debug"`
 		Domain                string       `yaml:"domain"`
