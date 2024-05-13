@@ -1,3 +1,6 @@
+// Useful swagger example:
+//
+// https://petstore.swagger.io/#/
 package api
 
 import (
