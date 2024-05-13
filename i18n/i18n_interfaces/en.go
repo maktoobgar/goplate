@@ -132,6 +132,10 @@ func (t *TranslatorEnGalidator) Choices() string {
 	return "acceptable choices are $choices"
 }
 
+func (t *TranslatorEnGalidator) EmailIsUnique() string {
+	return "email submited and approved by another account before"
+}
+
 func (t *TranslatorEnGalidator) ImageType() string {
 	return "only png and jpg image formats are allowed"
 }
@@ -146,6 +150,10 @@ func (t *TranslatorEnGalidator) MinLength() string {
 
 func (t *TranslatorEnGalidator) Phone() string {
 	return "sent phone number is not valid"
+}
+
+func (t *TranslatorEnGalidator) PhoneNumberIsUnique() string {
+	return "phone number submited and approved by another account before"
 }
 
 func (t *TranslatorEnGalidator) Required() string {

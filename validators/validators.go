@@ -6,7 +6,7 @@ import (
 
 var Generator = galidator.G().CustomValidators(galidator.Validators{
 	"email_is_unique":        EmailIsUnique,
-	"phone_number_is_unique": EmailIsUnique,
+	"phone_number_is_unique": PhoneNumberIsUnique,
 	"image_type":             ImageType("image/png", "image/jpg", "image/jpeg"),
 }).CustomMessages(galidator.Messages{
 	// Overrides the default galidator messages

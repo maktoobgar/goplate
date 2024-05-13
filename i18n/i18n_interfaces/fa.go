@@ -132,6 +132,10 @@ func (t *TranslatorGalidator) Choices() string {
 	return "گزینه های قابل قبول $choices هستند"
 }
 
+func (t *TranslatorGalidator) EmailIsUnique() string {
+	return "ایمیل قبلا در سامانه توسط اکانت دیگری ثبت و تایید شده است"
+}
+
 func (t *TranslatorGalidator) ImageType() string {
 	return "تنها تصاویر png و jpg قابل قبول هستند"
 }
@@ -146,6 +150,10 @@ func (t *TranslatorGalidator) MinLength() string {
 
 func (t *TranslatorGalidator) Phone() string {
 	return "شماره تماس ارسالی معتبر نمیباشد"
+}
+
+func (t *TranslatorGalidator) PhoneNumberIsUnique() string {
+	return "شماره تماس قبلا در سامانه توسط اکانت دیگری ثبت و تایید شده است"
 }
 
 func (t *TranslatorGalidator) Required() string {

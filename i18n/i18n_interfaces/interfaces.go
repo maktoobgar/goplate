@@ -38,10 +38,12 @@ type TranslatorAuthI interface {
 
 type TranslatorGalidatorI interface {
 	Choices() string
+	EmailIsUnique() string
 	ImageType() string
 	MaxLength() string
 	MinLength() string
 	Phone() string
+	PhoneNumberIsUnique() string
 	Required() string
 	Translate(key string, optionalInputs ...[]any) string
 }

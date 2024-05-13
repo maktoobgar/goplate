@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: added PhoneNumberIsUnique middleware
 - 🎉 feat: new galidator is in town
 - 🎉 feat: finally added list users
 - 🎉 feat: attempt to create pagination
