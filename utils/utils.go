@@ -17,7 +17,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/golodash/galidator"
+	"github.com/golodash/galidator/v2"
 	"github.com/kataras/iris/v12"
 )
 
@@ -161,7 +161,7 @@ func PrettyJsonBytes(data []byte) string {
 
 func Validate(ctx iris.Context, data any, validator galidator.Validator) {
 	translator := ctx.Values().Get(g.TranslatorKey).(i18n_interfaces.TranslatorI)
-	if errs := validator.Validate(data, func(s string) string { return translator.Galidator().Translate(s) }); errs != nil {
+	if errs := validator.Validate(ctx, data, func(s string) string { return translator.Galidator().Translate(s) }); errs != nil {
 		panic(errors.New(errors.InvalidStatus, translator.StatusCodes().BodyNotProvidedProperly(), "", errs))
 	}
 }

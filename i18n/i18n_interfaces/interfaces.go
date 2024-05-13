@@ -37,6 +37,7 @@ type TranslatorAuthI interface {
 }
 
 type TranslatorGalidatorI interface {
+	Choices() string
 	ImageType() string
 	MaxLength() string
 	MinLength() string

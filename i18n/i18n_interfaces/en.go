@@ -128,6 +128,10 @@ func (t *TranslatorEnAuth) Translate(key string, optionalInputs ...[]any) string
 
 type TranslatorEnGalidator struct{}
 
+func (t *TranslatorEnGalidator) Choices() string {
+	return "acceptable choices are $choices"
+}
+
 func (t *TranslatorEnGalidator) ImageType() string {
 	return "only png and jpg image formats are allowed"
 }

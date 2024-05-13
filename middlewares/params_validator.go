@@ -6,7 +6,7 @@ import (
 	"service/pkg/copier"
 	"service/utils"
 
-	"github.com/golodash/galidator"
+	"github.com/golodash/galidator/v2"
 	"github.com/kataras/iris/v12"
 )
 

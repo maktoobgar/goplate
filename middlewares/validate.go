@@ -10,7 +10,7 @@ import (
 
 	"service/i18n/i18n_interfaces"
 
-	"github.com/golodash/galidator"
+	"github.com/golodash/galidator/v2"
 	"github.com/kataras/iris/v12"
 )
 

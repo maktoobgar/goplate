@@ -9,6 +9,9 @@ Galidator:
   MaxLength: "حداکثر باید دارای طول $max کاراکتر باشد"
   Phone: "شماره تماس ارسالی معتبر نمیباشد"
   ImageType: "تنها تصاویر png و jpg قابل قبول هستند"
+  EmailIsUnique: "ایمیل قبلا در سامانه توسط اکانت دیگری ثبت و تایید شده است"
+  PhoneNumberIsUnique: "شماره تماس قبلا در سامانه توسط اکانت دیگری ثبت و تایید شده است"
+  Choices: "گزینه های قابل قبول $choices هستند"
 
 Auth:
   UserWithPhoneNumberNotFound: "کاربری با شماره تماس وارده یافت نشد"

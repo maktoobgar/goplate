@@ -13,7 +13,7 @@ import (
 
 type RegisterReq struct {
 	PhoneNumber string `json:"phone_number" g:"required,max=16,phone"`
-	Email       string `json:"email" g:"required,max=64"`
+	Email       string `json:"email" g:"required,max=64,email_is_unique"`
 	DisplayName string `json:"display_name" g:"required"`
 	Password    string `json:"password" g:"required,min=3"`
 }

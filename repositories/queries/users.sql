@@ -18,6 +18,12 @@ SELECT * FROM users WHERE phone_number = $1;
 -- name: LoginUserWithEmail :one
 SELECT * FROM users WHERE email = $1;
 
+-- name: GetUserWithApprovedPhoneNumber :one
+SELECT * FROM users WHERE phone_number = $1 AND phone_number_verified = TRUE;
+
+-- name: GetUserWithApprovedEmail :one
+SELECT * FROM users WHERE email = $1 AND email_verified = TRUE;
+
 -- name: GetUserWithTokenId :one
 SELECT u.* FROM users u JOIN tokens t ON u.id = t.user_id WHERE t.id = $1;
 

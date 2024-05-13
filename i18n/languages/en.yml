@@ -9,6 +9,9 @@ Galidator:
   MaxLength: "must be at most $max characters in length"
   Phone: "sent phone number is not valid"
   ImageType: "only png and jpg image formats are allowed"
+  EmailIsUnique: "email submited and approved by another account before"
+  PhoneNumberIsUnique: "phone number submited and approved by another account before"
+  Choices: "acceptable choices are $choices"
 
 Auth:
   UserWithPhoneNumberNotFound: "no user found with provided phone number"

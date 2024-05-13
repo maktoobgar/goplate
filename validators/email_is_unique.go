@@ -4,19 +4,15 @@ import (
 	"context"
 	"database/sql"
 	g "service/global"
-	"service/pkg/errors"
 	"service/repositories"
 	"service/utils"
 )
 
-func EmailIsUnique(input interface{}) bool {
-	db, err := g.DB()
-	if err != nil {
-		panic(errors.New(errors.ServiceUnavailable, "DbNotFound", err.Error(), nil))
-	}
+func EmailIsUnique(ctx context.Context, input interface{}) bool {
+	db := ctx.Value(g.DbInstance).(*sql.DB)
 	defer db.Close()
 
 	email, _ := input.(string)
-	_, err = repositories.New(db).GetUserByEmail(context.TODO(), sql.NullString{String: email, Valid: true})
+	_, err := repositories.New(db).GetUserWithApprovedEmail(ctx, sql.NullString{String: email, Valid: true})
 	return utils.IsErrorNotFound(err)
 }

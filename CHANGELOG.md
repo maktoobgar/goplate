@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: new galidator is in town
 - 🎉 feat: finally added list users
 - 🎉 feat: attempt to create pagination
 - 🎉 feat: added verify_email + verify_phone_number routes

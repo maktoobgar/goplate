@@ -150,6 +150,74 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
+const getUserWithApprovedEmail = `-- name: GetUserWithApprovedEmail :one
+SELECT id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE email = $1 AND email_verified = TRUE
+`
+
+func (q *Queries) GetUserWithApprovedEmail(ctx context.Context, email sql.NullString) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, getUserWithApprovedEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
+		&i.Email,
+		&i.EmailVerified,
+		&i.Password,
+		&i.Avatar,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.Params,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	return i, err
+}
+
+const getUserWithApprovedPhoneNumber = `-- name: GetUserWithApprovedPhoneNumber :one
+SELECT id, phone_number, phone_number_verified, email, email_verified, password, avatar, first_name, last_name, display_name, gender, is_active, registered, deactivation_reason, is_admin, params, is_superuser, created_at FROM users WHERE phone_number = $1 AND phone_number_verified = TRUE
+`
+
+func (q *Queries) GetUserWithApprovedPhoneNumber(ctx context.Context, phoneNumber string) (User, error) {
+	translator := ctx.Value(g.TranslatorKey).(i18n_interfaces.TranslatorI)
+	row := q.db.QueryRowContext(ctx, getUserWithApprovedPhoneNumber, phoneNumber)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PhoneNumber,
+		&i.PhoneNumberVerified,
+		&i.Email,
+		&i.EmailVerified,
+		&i.Password,
+		&i.Avatar,
+		&i.FirstName,
+		&i.LastName,
+		&i.DisplayName,
+		&i.Gender,
+		&i.IsActive,
+		&i.Registered,
+		&i.DeactivationReason,
+		&i.IsAdmin,
+		&i.Params,
+		&i.IsSuperuser,
+		&i.CreatedAt,
+	)
+	if err != nil && err != sql.ErrNoRows {
+		panic(errors.New(errors.UnexpectedStatus, translator.StatusCodes().InternalServerError(), err.Error()))
+	}
+	return i, err
+}
+
 const getUserWithTokenId = `-- name: GetUserWithTokenId :one
 SELECT u.id, u.phone_number, u.phone_number_verified, u.email, u.email_verified, u.password, u.avatar, u.first_name, u.last_name, u.display_name, u.gender, u.is_active, u.registered, u.deactivation_reason, u.is_admin, u.params, u.is_superuser, u.created_at FROM users u JOIN tokens t ON u.id = t.user_id WHERE t.id = $1
 `
@@ -221,7 +289,6 @@ ORDER BY
         NULL
     END
     DESC,
-
     CASE WHEN NOT $1::boolean THEN
         CASE $2::text
             WHEN 'id' THEN id::text
@@ -240,7 +307,6 @@ ORDER BY
         NULL
     END
     ASC
-
 LIMIT $4::int OFFSET (($3::int - 1) * $4::int)
 `
 
