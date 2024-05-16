@@ -1,4 +1,4 @@
-# Boilerplate
+# Goplate
 
 ## Setup for Development
 
