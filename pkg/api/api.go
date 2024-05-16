@@ -50,6 +50,8 @@ func getTypeName(fieldType reflect.Type, fieldName string) string {
 		fieldName = "integer"
 	case reflect.Array, reflect.Slice:
 		fieldName = "array"
+	case reflect.Bool:
+		fieldName = "boolean"
 	}
 
 	return fieldName
@@ -86,8 +88,10 @@ func getTypeInStruct[T any](input T) map[string]any {
 		isArray := fieldType.Kind() == reflect.Slice || fieldType.Kind() == reflect.Array
 		isStruct := fieldType.Kind() == reflect.Struct
 
-		if isStruct {
+		if isStruct && typeString != "time.Time" {
 			property["$ref"] = fmt.Sprintf("#/definitions/%s", fieldType.Name())
+		} else if isStruct && typeString == "time.Time" {
+			property["type"] = "string"
 		} else if isArray {
 			items := map[string]any{}
 			if fieldType.Elem().Kind() == reflect.Struct {
@@ -110,7 +114,6 @@ func getTypeInStruct[T any](input T) map[string]any {
 		}
 
 		properties[tag] = property
-
 	}
 
 	return map[string]any{"type": "object", "properties": properties, "xml": map[string]any{"name": inputType.Name()}}
@@ -127,12 +130,19 @@ func getAllTypes[T any](input T) (map[string]any, string) {
 			fieldType = fieldType.Elem()
 		}
 		if fieldType.Kind() == reflect.Struct {
-			internalOutput, _ := getAllTypes(reflect.ValueOf(input).Field(i).Interface())
-			for key, value := range internalOutput {
-				outputs[key] = value
+			fieldValue := reflect.ValueOf(input).Field(i)
+			if fieldValue.CanInterface() {
+				if fieldValue.Type().String() == "time.Time" {
+					// If type is time variable
+					outputs[inputType.Name()].(map[string]any)["properties"].(map[string]any)[field.Tag.Get("json")] = map[string]any{"type": "string"}
+				} else {
+					internalOutput, _ := getAllTypes(reflect.ValueOf(input).Field(i).Interface())
+					for key, value := range internalOutput {
+						outputs[key] = value
+					}
+				}
 			}
-		}
-		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
+		} else if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
 			if fieldType.Elem().Kind() == reflect.Struct {
 				internalOutput, _ := getAllTypes(reflect.New(fieldType.Elem()).Elem().Interface())
 				for key, value := range internalOutput {
@@ -201,7 +211,12 @@ func defineHandler[ReqT, ResT any](method, path string, handler context.Handler,
 		},
 	}
 
-	allRoutes[filepath.Join(PreRoute, path)] = map[string]any{method: route}
+	path = filepath.Join(PreRoute, path)
+	if _, ok := allRoutes[path]; ok {
+		allRoutes[path].(map[string]any)[method] = route
+	} else {
+		allRoutes[path] = map[string]any{method: route}
+	}
 }
 
 func Get[ResT any](app router.Party, path string, handler []context.Handler, response *ResT, settings ...Setting) {

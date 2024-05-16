@@ -10,17 +10,6 @@
 		}
 	},
 	"definitions": {
-		"HelloRes": {
-			"properties": {
-				"message": {
-					"type": "string"
-				}
-			},
-			"type": "object",
-			"xml": {
-				"name": "HelloRes"
-			}
-		},
 		"LoginWithEmailReq": {
 			"properties": {
 				"password": {
@@ -77,6 +66,63 @@
 				"name": "LoginWithPhoneRes"
 			}
 		},
+		"MeRes": {
+			"properties": {
+				"avatar": {
+					"type": "string"
+				},
+				"created_at": {
+					"type": "string"
+				},
+				"display_name": {
+					"type": "string"
+				},
+				"email": {
+					"type": "string"
+				},
+				"first_name": {
+					"type": "string"
+				},
+				"gender": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"is_active": {
+					"type": "boolean"
+				},
+				"is_admin": {
+					"type": "boolean"
+				},
+				"is_superuser": {
+					"type": "boolean"
+				},
+				"last_name": {
+					"type": "string"
+				},
+				"phone_number": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "MeRes"
+			}
+		},
+		"Message": {
+			"properties": {
+				"message": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "Message"
+			}
+		},
 		"RefreshTokenRes": {
 			"properties": {
 				"access_token": {
@@ -124,6 +170,70 @@
 			"xml": {
 				"name": "RegisterRes"
 			}
+		},
+		"UpdateAvatarReq": {
+			"properties": {
+				"avatar": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "UpdateAvatarReq"
+			}
+		},
+		"UpdateMePatchReq": {
+			"properties": {
+				"display_name": {
+					"type": "string"
+				},
+				"first_name": {
+					"type": "string"
+				},
+				"gender": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"last_name": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "UpdateMePatchReq"
+			}
+		},
+		"UpdateMeReq": {
+			"properties": {
+				"display_name": {
+					"type": "string"
+				},
+				"first_name": {
+					"type": "string"
+				},
+				"gender": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"last_name": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "UpdateMeReq"
+			}
+		},
+		"VerifyEmailReq": {
+			"properties": {
+				"code": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"xml": {
+				"name": "VerifyEmailReq"
+			}
 		}
 	},
 	"host": "{{.Host}}",
@@ -144,7 +254,7 @@
 				"responses": {
 					"200": {
 						"schema": {
-							"$ref": "#/definitions/HelloRes"
+							"$ref": "#/definitions/Message"
 						}
 					}
 				},
@@ -210,6 +320,24 @@
 				]
 			}
 		},
+		"/auth/logout": {
+			"post": {
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/"
+						}
+					}
+				},
+				"summary": "Logs out",
+				"tags": [
+					"Auth"
+				]
+			}
+		},
 		"/auth/refresh_token": {
 			"post": {
 				"produces": [
@@ -258,6 +386,226 @@
 				"summary": "Users register from here",
 				"tags": [
 					"Auth"
+				]
+			}
+		},
+		"/auth/request_verify_email": {
+			"post": {
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/Message"
+						}
+					}
+				},
+				"security": [
+					{
+						"Authorization": []
+					}
+				],
+				"summary": "Sends a request to send a key to the registered email to verify it later with another api",
+				"tags": [
+					"Auth"
+				]
+			}
+		},
+		"/auth/request_verify_phone_number": {
+			"post": {
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/Message"
+						}
+					}
+				},
+				"security": [
+					{
+						"Authorization": []
+					}
+				],
+				"summary": "Sends a request to send a key to the registered phone number to verify it later with another api",
+				"tags": [
+					"Auth"
+				]
+			}
+		},
+		"/auth/verify_email": {
+			"post": {
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/VerifyEmailReq"
+						}
+					}
+				],
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/Message"
+						}
+					}
+				},
+				"security": [
+					{
+						"Authorization": []
+					}
+				],
+				"summary": "Verifies sent key that has been sent to the registered email",
+				"tags": [
+					"Auth"
+				]
+			}
+		},
+		"/auth/verify_phone_number": {
+			"post": {
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/"
+						}
+					}
+				},
+				"security": [
+					{
+						"Authorization": []
+					}
+				],
+				"summary": "Verifies sent key that has been sent to the registered phone number",
+				"tags": [
+					"Auth"
+				]
+			}
+		},
+		"/me": {
+			"get": {
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/MeRes"
+						}
+					}
+				},
+				"security": [
+					{
+						"Authorization": []
+					}
+				],
+				"summary": "Returns user's data",
+				"tags": [
+					"Users"
+				]
+			},
+			"patch": {
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/UpdateMePatchReq"
+						}
+					}
+				],
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/MeRes"
+						}
+					}
+				},
+				"security": [
+					{
+						"Authorization": []
+					}
+				],
+				"summary": "Updates user's data and returns updated version in response",
+				"tags": [
+					"Users"
+				]
+			},
+			"put": {
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"required": false,
+						"schema": {
+							"$ref": "#/definitions/UpdateMeReq"
+						}
+					}
+				],
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/MeRes"
+						}
+					}
+				},
+				"security": [
+					{
+						"Authorization": []
+					}
+				],
+				"summary": "Updates user's data and returns updated version in response",
+				"tags": [
+					"Users"
+				]
+			}
+		},
+		"/me/avatar": {
+			"put": {
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"required": false,
+						"schema": {
+							"$ref": "#/definitions/UpdateAvatarReq"
+						}
+					}
+				],
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"schema": {
+							"$ref": "#/definitions/MeRes"
+						}
+					}
+				},
+				"security": [
+					{
+						"Authorization": []
+					}
+				],
+				"summary": "Updates user's avatar and returns user's data",
+				"tags": [
+					"Users"
 				]
 			}
 		}

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"service/dto"
 	g "service/global"
 	"service/handlers"
 	"service/handlers/error_handlers"
@@ -52,7 +53,7 @@ func HTTP(app *iris.Application) {
 	// More basic
 	staticFiles := app.Party("/")
 
-	api.Get(basicApi, "/", []context.Handler{handlers.Hello}, &handlers.HelloRes{}, api.Setting{Summary: "Simple hello world"})
+	api.Get(basicApi, "/", []context.Handler{handlers.Hello}, &dto.Message{}, api.Setting{Summary: "Simple hello world"})
 
 	// Activate Swagger
 	basicApi.Get("/swagger/{any}", func(ctx *context.Context) {

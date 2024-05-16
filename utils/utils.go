@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"reflect"
+	"service/dto"
 	g "service/global"
 	"service/i18n/i18n_interfaces"
 	"service/pkg/errors"
@@ -79,13 +80,10 @@ func Panic500(err error) {
 	panic(errors.New(errors.UnexpectedStatus, "InternalServerError", err.Error(), nil))
 }
 
-func SendMessage(ctx iris.Context, message string, data ...map[string]any) {
-	var output = map[string]any{}
-	if len(data) != 0 {
-		output = data[0]
+func SendMessage(ctx iris.Context, message string) {
+	output := dto.Message{
+		Message: message,
 	}
-
-	output["message"] = message
 	sendIfCtxNotCancelled(ctx, -1, &output)
 }
 

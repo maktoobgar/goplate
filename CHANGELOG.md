@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- 🎉 feat: swagger generator more test and debug
 - 🎉 feat: swagger documentation generator added
 - 🎉 feat: added PhoneNumberIsUnique middleware
 - 🎉 feat: new galidator is in town
