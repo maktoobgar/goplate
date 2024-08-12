@@ -27,5 +27,5 @@ func API(justReturn ...bool) *iris.Application {
 
 	runCronJobs()
 
-	return api.Run(app, g.CFG.Gateway.IP, g.CFG.Gateway.Port, filepath.Join(g.CFG.PWD, "docs"))
+	return api.Run(app, g.CFG.IP, g.CFG.Port, filepath.Join(g.CFG.PWD, "docs"))
 }

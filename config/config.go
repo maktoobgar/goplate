@@ -4,19 +4,21 @@ import db "service/pkg/database"
 
 type (
 	Config struct {
-		Logging               Logging      `yaml:"logging"`
-		Language              Language     `yaml:"language"`
-		Gateway               Microservice `yaml:"gateway"`
-		Debug                 bool         `yaml:"debug"`
-		Domain                string       `yaml:"domain"`
-		PWD                   string       `yaml:"pwd"`
-		AllowOrigins          string       `yaml:"allow_origins"`
-		AllowHeaders          string       `yaml:"allow_headers"`
-		MaxAge                int          `yaml:"max_age"`
-		Timeout               int64        `yaml:"timeout"`
-		MaxConcurrentRequests int          `yaml:"max_concurrent_requests"`
-		SecretKey             string       `yaml:"secret_key"`
-		Media                 string       `yaml:"media"`
+		Logging               Logging     `yaml:"logging"`
+		Language              Language    `yaml:"language"`
+		Database              db.Database `yaml:"database"`
+		IP                    string      `yaml:"ip"`
+		Port                  string      `yaml:"port"`
+		Debug                 bool        `yaml:"debug"`
+		Domain                string      `yaml:"domain"`
+		PWD                   string      `yaml:"pwd"`
+		AllowOrigins          string      `yaml:"allow_origins"`
+		AllowHeaders          string      `yaml:"allow_headers"`
+		MaxAge                int         `yaml:"max_age"`
+		Timeout               int64       `yaml:"timeout"`
+		MaxConcurrentRequests int         `yaml:"max_concurrent_requests"`
+		SecretKey             string      `yaml:"secret_key"`
+		Media                 string      `yaml:"media"`
 
 		// SMS System
 		OtpApiUrl     string `yaml:"otp_api_url"`
@@ -40,11 +42,5 @@ type (
 	Language struct {
 		Path            string `yaml:"path"`
 		DefaultLanguage string `yaml:"default_language"`
-	}
-
-	Microservice struct {
-		Database db.Database `yaml:"database"`
-		IP       string      `yaml:"ip"`
-		Port     string      `yaml:"port"`
 	}
 )

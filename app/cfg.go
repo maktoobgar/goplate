@@ -73,7 +73,7 @@ func initialLogger() {
 // Run dbs
 func initialDBs() {
 	var err error
-	g.DB, err = db.New(cfg.Gateway.Database, cfg.Debug)
+	g.DB, err = db.New(cfg.Database, cfg.Debug)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -88,7 +88,7 @@ func MigrateLatestChanges() {
 		Dir: "migrations/",
 	}
 
-	n, err := migrate.Exec(db, g.CFG.Gateway.Database.Type, migrations, migrate.Up)
+	n, err := migrate.Exec(db, g.CFG.Database.Type, migrations, migrate.Up)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -107,7 +107,7 @@ func DemigrateOneChange() {
 		Dir: "migrations/",
 	}
 
-	n, err := migrate.ExecMax(db, g.CFG.Gateway.Database.Type, migrations, migrate.Down, 1)
+	n, err := migrate.ExecMax(db, g.CFG.Database.Type, migrations, migrate.Down, 1)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -116,6 +116,14 @@ func DemigrateOneChange() {
 		fmt.Printf("Reversed %s%d%s migrations!\n", colors.Red, n, colors.Reset)
 	}
 }
+
+// func redis() {
+// 	client := redis.NewClient(&redis.Options{
+// 		Addr:     "localhost:6379",
+// 		Password: "", // no password set
+// 		DB:       0,  // use default DB
+// 	})
+// }
 
 func initialMedia() {
 	g.Media = media_manager.NewMediaManager(cfg.Media, filepath.Join(cfg.PWD, cfg.Media), true)

@@ -2,20 +2,19 @@
 # add a database with it's name equal to "main"
 debug: true
 
-gateway:
-  ip: 0.0.0.0
-  port: 6969
-  database:
-    type: "postgres"
-    username: "postgres"
-    password: "password"
-    db_name: "db_name"
-    host: "127.0.0.1"
-    port: 5432
-    ssl_mode: "disable"
-    time_zone: "UTC"
-    # time_zone: "Asia/Tehran"
-    charset: "utf8mb4"
+ip: 0.0.0.0
+port: 6969
+database:
+  type: "postgres"
+  username: "postgres"
+  password: "password"
+  db_name: "db_name"
+  host: "127.0.0.1"
+  port: 5432
+  ssl_mode: "disable"
+  time_zone: "UTC"
+  # time_zone: "Asia/Tehran"
+  charset: "utf8mb4"
 
 domain: "http://0.0.0.0:3000"
 

@@ -26,10 +26,10 @@ func Info() {
 		mainOrTestColor = colors.Green + mainOrTest + colors.Reset
 	}
 
-	if g.CFG.Gateway.Database.Type == "sqlite3" {
-		fmt.Printf("Main Database:\t\t%v, %v (%v)\n", g.CFG.Gateway.Database.Type, g.CFG.Gateway.Database.DbName, mainOrTestColor)
+	if g.CFG.Database.Type == "sqlite3" {
+		fmt.Printf("Main Database:\t\t%v, %v (%v)\n", g.CFG.Database.Type, g.CFG.Database.DbName, mainOrTestColor)
 	} else {
-		fmt.Printf("Main Database:\t\t%v, %v, %v:%v (%v)\n", g.CFG.Gateway.Database.Type, g.CFG.Gateway.Database.DbName, g.CFG.Gateway.Database.Host, g.CFG.Gateway.Database.Port, mainOrTestColor)
+		fmt.Printf("Main Database:\t\t%v, %v, %v:%v (%v)\n", g.CFG.Database.Type, g.CFG.Database.DbName, g.CFG.Database.Host, g.CFG.Database.Port, mainOrTestColor)
 	}
 
 	if g.CFG.Debug {
@@ -38,7 +38,7 @@ func Info() {
 		fmt.Printf("Debug:\t\t\t%s%v%s\n", colors.Green, g.CFG.Debug, colors.Reset)
 	}
 	fmt.Printf("Documentation:\t\t%s%s/swagger/index.html%s\n", colors.Green, g.CFG.Domain, colors.Reset)
-	fmt.Printf("Address:\t\thttp://%s:%s\n", g.CFG.Gateway.IP, g.CFG.Gateway.Port)
+	fmt.Printf("Address:\t\thttp://%s:%s\n", g.CFG.IP, g.CFG.Port)
 	fmt.Printf("Allowed Origins:\t%v\n", g.CFG.AllowOrigins)
 	if g.CFG.AllowHeaders != "" {
 		fmt.Printf("Extra Allowed Headers:\t%v\n", g.CFG.AllowHeaders)

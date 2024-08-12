@@ -42,5 +42,5 @@ func LoginWithEmail(ctx iris.Context) {
 
 	_, refreshToken := user.GenerateRefreshToken(ctx, db, accessTokenObject.ID)
 
-	utils.SendJson(ctx, LoginWithPhoneRes{AccessToken: accessToken, RefreshToken: refreshToken})
+	utils.SendJson(ctx, LoginWithEmailRes{AccessToken: accessToken, RefreshToken: refreshToken})
 }

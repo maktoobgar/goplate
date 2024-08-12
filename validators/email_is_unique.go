@@ -10,7 +10,6 @@ import (
 
 func EmailIsUnique(ctx context.Context, input interface{}) bool {
 	db := ctx.Value(g.DbInstance).(*sql.DB)
-	defer db.Close()
 
 	email, _ := input.(string)
 	_, err := repositories.New(db).GetUserWithApprovedEmail(ctx, sql.NullString{String: email, Valid: true})
